@@ -1,0 +1,31 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="MPL2.0"
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+logoFile= "icon.png"
+credits="Created by TurtleHoarder"
+description='''${mod_description}'''
+displayTest="IGNORE_SERVER_VERSION" # MATCH_VERSION is the default if nothing is specified (#optional)
+
+[[dependencies.${mod_id}]]
+    modId="forge"
+    mandatory=true
+    versionRange="${forge_version_range}"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="cobblemon"
+    mandatory=true
+    versionRange="[1.3,)"
+    ordering="NONE"
+    side="BOTH"
