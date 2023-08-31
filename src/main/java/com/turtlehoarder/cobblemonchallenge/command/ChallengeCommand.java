@@ -5,6 +5,7 @@ import com.cobblemon.mod.common.battles.BattleFormat;
 import com.cobblemon.mod.common.battles.BattleRegistry;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.config.ChallengeConfig;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -30,10 +31,10 @@ public class ChallengeCommand {
 
     public record ChallengeRequest(String id, ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, long createdTime) {}
 
-    private static final float MAX_DISTANCE = ChallengeConfig.MAX_CHALLENGE_DISTANCE.get();
-    private static final boolean USE_DISTANCE_RESTRICTION = ChallengeConfig.CHALLENGE_DISTANCE_RESTRICTION.get();
-    private static final int DEFAULT_LEVEL = ChallengeConfig.DEFAULT_CHALLENGE_LEVEL.get();
-    private static final int CHALLENGE_COOLDOWN = ChallengeConfig.CHALLENGE_COOLDOWN_MILLIS.get();
+    private static final float MAX_DISTANCE = ChallengeConfig.MAX_CHALLENGE_DISTANCE;
+    private static final boolean USE_DISTANCE_RESTRICTION = ChallengeConfig.CHALLENGE_DISTANCE_RESTRICTION;
+    private static final int DEFAULT_LEVEL = ChallengeConfig.DEFAULT_CHALLENGE_LEVEL;
+    private static final int CHALLENGE_COOLDOWN = ChallengeConfig.CHALLENGE_COOLDOWN_MILLIS;
     public static HashMap<String, ChallengeRequest> CHALLENGE_REQUESTS = new HashMap<>();
     private static final HashMap<UUID, Long> LAST_SENT_CHALLENGE = new HashMap<>();
 

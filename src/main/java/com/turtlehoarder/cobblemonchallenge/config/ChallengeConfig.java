@@ -1,21 +1,37 @@
 package com.turtlehoarder.cobblemonchallenge.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
+import com.mojang.datafixers.util.Pair;
 
-public class ChallengeConfig{
+public class ChallengeConfig {
+    public static SimpleConfig CONFIG;
+    private static ChallengeConfigProvider configs;
+    public static Boolean CHALLENGE_DISTANCE_RESTRICTION;
+    public static int MAX_CHALLENGE_DISTANCE;
+    public static int DEFAULT_CHALLENGE_LEVEL;
+    public static int REQUEST_EXPIRATION_MILLIS;
+    public static int CHALLENGE_COOLDOWN_MILLIS;
 
-    public static ForgeConfigSpec.ConfigValue<Boolean> CHALLENGE_DISTANCE_RESTRICTION;
-    public static ForgeConfigSpec.ConfigValue<Integer> MAX_CHALLENGE_DISTANCE;
-    public static ForgeConfigSpec.ConfigValue<Integer> DEFAULT_CHALLENGE_LEVEL;
-    public static ForgeConfigSpec.ConfigValue<Integer> REQUEST_EXPIRATION_MILLIS;
-    public static ForgeConfigSpec.ConfigValue<Integer> CHALLENGE_COOLDOWN_MILLIS;
+    public static void registerConfigs() {
+        CobblemonChallenge.LOGGER.info("Loading Challenge Configs");
+        configs = new ChallengeConfigProvider();
+        createConfigs();
+        CONFIG = SimpleConfig.of(CobblemonChallenge.MODID + "-config").provider(configs).request();
+        assignConfigs();
+    }
+    private static void createConfigs() {
+        configs.addKeyValuePair(new Pair<>("challengeDistanceRestriction", true));
+        configs.addKeyValuePair(new Pair<>("maxChallengeDistance", 50));
+        configs.addKeyValuePair(new Pair<>("defaultChallengeLevel", 50));
+        configs.addKeyValuePair(new Pair<>("challengeExpirationTime", 60000));
+        configs.addKeyValuePair(new Pair<>("challengeCooldownTime", 5000));
+    }
 
-    public ChallengeConfig(ForgeConfigSpec.Builder builder){
-        builder.push("cobblemonchallenge");
-        CHALLENGE_DISTANCE_RESTRICTION = builder.comment("Set to false if you don't want a distance restriction on challenges").define("challengeDistanceRestriction", true);
-        MAX_CHALLENGE_DISTANCE = builder.comment("Max distance of a challenge if challengeDistanceRestriction is set to true").define("maxChallengeDistance", 50);
-        DEFAULT_CHALLENGE_LEVEL = builder.comment("The default level to set teams to if there is no challenge specified").define("defaultChallengeLevel", 50);
-        REQUEST_EXPIRATION_MILLIS = builder.comment("Time in millis before a challenge request expires").define("challengeExpirationTime", 60000);
-        CHALLENGE_COOLDOWN_MILLIS = builder.comment("Time in millis before a player can send a consecutive challenge").define("challengeCooldownTime", 5000);
+    private static void assignConfigs() {
+        CHALLENGE_COOLDOWN_MILLIS = CONFIG.getOrDefault("challengeCooldownTime", 5000);
+        CHALLENGE_DISTANCE_RESTRICTION = CONFIG.getOrDefault("challengeDistanceRestriction", true);
+        DEFAULT_CHALLENGE_LEVEL = CONFIG.getOrDefault("defaultChallengeLevel", 50);
+        MAX_CHALLENGE_DISTANCE = CONFIG.getOrDefault("maxChallengeDistance", 50);
+        REQUEST_EXPIRATION_MILLIS = CONFIG.getOrDefault("challengeExpirationTime", 60000);
     }
 }

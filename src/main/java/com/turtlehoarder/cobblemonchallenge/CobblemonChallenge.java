@@ -3,43 +3,21 @@ package com.turtlehoarder.cobblemonchallenge;
 import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.config.ChallengeConfig;
 import com.turtlehoarder.cobblemonchallenge.event.ChallengeEventHandler;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.IExtensionPoint;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.network.NetworkConstants;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Mod(CobblemonChallenge.MOD_ID)
-public class CobblemonChallenge {
-    public static final String MOD_ID = "cobblemonchallenge";
-    public static final Logger LOGGER = LogManager.getLogger();
-    public static CobblemonChallenge INSTANCE;
-    private static ChallengeConfig config;
-    private static ForgeConfigSpec commonSpec;
 
-    static {
-        final Pair<ChallengeConfig, ForgeConfigSpec> common = new ForgeConfigSpec.Builder().configure(ChallengeConfig::new);
-        config = common.getLeft();
-        commonSpec = common.getRight();
-    }
+public class CobblemonChallenge implements ModInitializer {
 
-    public CobblemonChallenge() {
-        INSTANCE = this;
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, commonSpec);
-        MinecraftForge.EVENT_BUS.register(ChallengeEventHandler.class);
-        MinecraftForge.EVENT_BUS.addListener(this::commands);
-        DistExecutor.safeCallWhenOn(Dist.DEDICATED_SERVER, () -> ChallengeEventHandler::registerPostVictoryEvent);
-    }
+    public static String MODID = "cobblemonchallenge";
+    public static final Logger LOGGER = LoggerFactory.getLogger("cobblemonchallenge");
 
-    public void commands(RegisterCommandsEvent e) {
-        ChallengeCommand.register(e.getDispatcher());
+    @Override
+    public void onInitialize() {
+        ChallengeConfig.registerConfigs();
+        ChallengeEventHandler.registerEvents();
+        CommandRegistrationCallback.EVENT.register((commandDispatcher, commandBuildContext, commandSelection) -> ChallengeCommand.register(commandDispatcher));
     }
 }
