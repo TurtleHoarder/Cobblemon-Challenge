@@ -34,7 +34,7 @@ public class ChallengeEventHandler {
      */
     public static boolean registerPostVictoryEvent() {
         CobblemonEvents.BATTLE_VICTORY.subscribe(Priority.NORMAL, (battleVictoryEvent) -> {
-            CobblemonChallenge.LOGGER.log(Level.INFO, "Battle victory!");
+            CobblemonChallenge.LOGGER.info("Battle victory!");
             UUID battleId = battleVictoryEvent.getBattle().getBattleId();
             Iterator<PokemonEntity> clonedPokemonIterator = ChallengeBattleBuilder.clonedPokemonList.iterator();
             // remove cloned pokemon associated with battle
@@ -43,7 +43,7 @@ public class ChallengeEventHandler {
                 if (clonedPokemon.getBattleId().get().isPresent() && clonedPokemon.getBattleId().get().get().equals(battleId)) {
                     clonedPokemon.remove(Entity.RemovalReason.DISCARDED);
                     clonedPokemonIterator.remove();
-                    CobblemonChallenge.LOGGER.log(Level.DEBUG, String.format("Removing cloned pokemon from battle: %s", clonedPokemon.getDisplayName().getString()));
+                    CobblemonChallenge.LOGGER.debug(String.format("Removing cloned pokemon from battle: %s", clonedPokemon.getDisplayName().getString()));
                 }
             }
             // Send victory message to victor
@@ -71,7 +71,7 @@ public class ChallengeEventHandler {
                 PokemonBattle battle = challengeBattleIterator.next();
                 if (battle.getBattleId().equals(battleVictoryEvent.getBattle().getBattleId())) {
                     challengeBattleIterator.remove();
-                    CobblemonChallenge.LOGGER.log(Level.DEBUG, String.format("Removing tracked Challenge battle id: %s", battleVictoryEvent.getBattle().getBattleId()));
+                    CobblemonChallenge.LOGGER.debug(String.format("Removing tracked Challenge battle id: %s", battleVictoryEvent.getBattle().getBattleId()));
                 }
             }
             return Unit.INSTANCE;
@@ -87,14 +87,14 @@ public class ChallengeEventHandler {
         while (battleIterator.hasNext()) {
             PokemonBattle battle = battleIterator.next();
             if (battle.getPlayers().contains(serverPlayer)) {
-                CobblemonChallenge.LOGGER.log(Level.DEBUG, String.format("Found hanging battle! (%s)", battle.getBattleId()));
+                CobblemonChallenge.LOGGER.debug(String.format("Found hanging battle! (%s)", battle.getBattleId()));
                 Iterator<PokemonEntity> clonedPokemonIterator = ChallengeBattleBuilder.clonedPokemonList.iterator();
                 while (clonedPokemonIterator.hasNext()) {
                     PokemonEntity clonedPokemon = clonedPokemonIterator.next();
                     if (clonedPokemon.getBattleId().get().isPresent() && clonedPokemon.getBattleId().get().get().equals(battle.getBattleId())) {
-                        CobblemonChallenge.LOGGER.log(Level.DEBUG, String.format("Removing cloned pokemon from battle: %s | Battle id %s", clonedPokemon.getDisplayName().getString(), clonedPokemon.getBattleId().get().get()));
+                        CobblemonChallenge.LOGGER.debug(String.format("Removing cloned pokemon from battle: %s | Battle id %s", clonedPokemon.getDisplayName().getString(), clonedPokemon.getBattleId().get().get()));
                     } else {
-                        CobblemonChallenge.LOGGER.log(Level.DEBUG, String.format("Removing cloned pokemon from world that no longer has battle id: %s", clonedPokemon.getDisplayName().getString()));
+                        CobblemonChallenge.LOGGER.debug(String.format("Removing cloned pokemon from world that no longer has battle id: %s", clonedPokemon.getDisplayName().getString()));
 
                     }
                     clonedPokemon.remove(Entity.RemovalReason.DISCARDED); // This will call despawnPokemon event and remove it from the list
@@ -110,7 +110,7 @@ public class ChallengeEventHandler {
     public static void checkSpawn(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof PokemonEntity pokemonEntity) {
             if (ChallengeUtil.isPokemonPartOfChallenge(pokemonEntity)) {
-                CobblemonChallenge.LOGGER.log(Level.DEBUG, String.format("Entity Joined already in battle: %s | Battle id %s", event.getEntity().getDisplayName().getString(), pokemonEntity.getBattleId().get().get()));
+                CobblemonChallenge.LOGGER.debug(String.format("Entity Joined already in battle: %s | Battle id %s", event.getEntity().getDisplayName().getString(), pokemonEntity.getBattleId().get().get()));
                 ChallengeBattleBuilder.clonedPokemonList.add(pokemonEntity);
                 // Trick Cobblemon into thinking the clones are *not* wild pokemon. This will prevent duplicates being caught if something unexpected happens to the battle, like /stopbattle or a server crash
                 pokemonEntity.getPokemon().getStoreCoordinates().set(new StoreCoordinates<BottomlessPosition>(new BottomlessStore(new UUID(0,0)), new BottomlessPosition(0)));
@@ -121,14 +121,14 @@ public class ChallengeEventHandler {
 
     @SubscribeEvent
     public static void onServerShutdown(ServerStoppingEvent event) {
-        CobblemonChallenge.LOGGER.log(Level.DEBUG, "Performing Server Shutdown tasks for Cobblemon Challenge");
+        CobblemonChallenge.LOGGER.debug( "Performing Server Shutdown tasks for Cobblemon Challenge");
         if (!ChallengeBattleBuilder.clonedPokemonList.isEmpty()) {
-            CobblemonChallenge.LOGGER.log(Level.DEBUG, String.format("Cloned pokemon (%d) from challenges detected. Removing all before server shuts down", ChallengeBattleBuilder.clonedPokemonList.size()));
+            CobblemonChallenge.LOGGER.debug(String.format("Cloned pokemon (%d) from challenges detected. Removing all before server shuts down", ChallengeBattleBuilder.clonedPokemonList.size()));
             ArrayList<PokemonEntity> clonedPokemonCopyList = new ArrayList<PokemonEntity>(ChallengeBattleBuilder.clonedPokemonList); // Create a copy since other list may be altered by despawn events
             clonedPokemonCopyList.forEach(pokemonEntity -> pokemonEntity.remove(Entity.RemovalReason.DISCARDED));
             clonedPokemonCopyList.clear();
         }
-        CobblemonChallenge.LOGGER.log(Level.DEBUG, "Finished performing Server Shutdown tasks for Cobblemon Challenge");
+        CobblemonChallenge.LOGGER.debug("Finished performing Server Shutdown tasks for Cobblemon Challenge");
     }
 
     @SubscribeEvent
@@ -158,9 +158,10 @@ public class ChallengeEventHandler {
                 if (pokemonEntity.getBattleId().get().isEmpty()) {
                     pokemonEntity.remove(Entity.RemovalReason.DISCARDED);
                     clonedPokemonIterator.remove();
-                    CobblemonChallenge.LOGGER.log(Level.DEBUG, String.format("Removed hanging duplicate pokemon %s", pokemonEntity.getDisplayName().getString()));
+                    CobblemonChallenge.LOGGER.debug(String.format("Removed hanging duplicate pokemon %s", pokemonEntity.getDisplayName().getString()));
                 }
             }
         }
     }
+
 }

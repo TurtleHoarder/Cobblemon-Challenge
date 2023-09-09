@@ -11,6 +11,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
+import com.turtlehoarder.cobblemonchallenge.gui.LeadPokemonMenuProvider;
 import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -22,6 +23,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ChestMenu;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -44,6 +49,11 @@ public class ChallengeCommand {
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(c -> challengePlayer(c, DEFAULT_LEVEL)));
 
+        // Basic challenge command that initiates a challenge with the default challenge level
+        LiteralArgumentBuilder<CommandSourceStack> testCommandBuilder = Commands.literal("testchallenge")
+                .then(Commands.argument("player", EntityArgument.player())
+                    .executes(ChallengeCommand::testGui));
+
         // Challenge command that initiates a challenge with a given level
         LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOption = Commands.literal("challenge")
                 .then(Commands.argument("player", EntityArgument.player())
@@ -63,10 +73,24 @@ public class ChallengeCommand {
                 .then(Commands.argument("id", StringArgumentType.string()).executes(c -> rejectChallenge(c, StringArgumentType.getString(c, "id"))));
 
 
+        dispatcher.register(testCommandBuilder);
         dispatcher.register(commandBuilderAcceptChallenge);
         dispatcher.register(commandBuilderRejectChallenge);
         dispatcher.register(baseCommandBuilder);
         dispatcher.register(commandBuilderWithLevelOption);
+    }
+
+    public static int testGui(CommandContext<CommandSourceStack> c) {
+        try {
+            ServerPlayer p = c.getSource().getPlayer();
+            ServerPlayer challenegedPlayer = c.getArgument("player", EntitySelector.class).findSinglePlayer(c.getSource());
+            p.openMenu(new LeadPokemonMenuProvider(p, challenegedPlayer));
+            return Command.SINGLE_SUCCESS;
+        } catch (Exception e) {
+            c.getSource().sendFailure(Component.literal("An unexpected error has occurred"));
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     public static int challengePlayer(CommandContext<CommandSourceStack> c, int level) {
