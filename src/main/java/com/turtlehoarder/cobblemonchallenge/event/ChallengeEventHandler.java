@@ -29,6 +29,7 @@ public class ChallengeEventHandler {
 
     public static void registerEvents() {
         registerPostVictoryEvent();
+        registerChallengeLootPrevention();
         ServerEntityEvents.ENTITY_LOAD.register((entity, server) -> {
             checkSpawn(entity);
         });
@@ -95,6 +96,18 @@ public class ChallengeEventHandler {
         return true;
     }
 
+    private static void registerChallengeLootPrevention() {
+        CobblemonEvents.LOOT_DROPPED.subscribe(Priority.HIGHEST, (lootDroppedEvent) -> {
+            if (lootDroppedEvent.getEntity() instanceof PokemonEntity pokemonEntity) {
+                if (ChallengeUtil.isPokemonPartOfChallenge(pokemonEntity)) {
+                    CobblemonChallenge.LOGGER.debug(String.format(String.format("Prevented drop from cloned pokemon: %s", pokemonEntity.getDisplayName().getString()), ChallengeBattleBuilder.clonedPokemonList.size()));
+                    lootDroppedEvent.cancel(); // Cancel loot dropped event if it's part of a challenge
+                }
+            }
+            return Unit.INSTANCE;
+        });
+    }
+
     // When a player leaves, check to see if they were part of any challenges. If they are, remove all cloned pokemon that are associated with this challenge. This will prevent duplicate mons from remaining behind
     public static void onPlayerLoggedOut(ServerPlayer serverPlayer) {
         Iterator<PokemonBattle> battleIterator = ChallengeBattleBuilder.challengeBattles.iterator();
@@ -107,12 +120,13 @@ public class ChallengeEventHandler {
                     PokemonEntity clonedPokemon = clonedPokemonIterator.next();
                     if (clonedPokemon.getBattleId().get().isPresent() && clonedPokemon.getBattleId().get().get().equals(battle.getBattleId())) {
                         CobblemonChallenge.LOGGER.debug(String.format("Removing cloned pokemon from battle: %s | Battle id %s", clonedPokemon.getDisplayName().getString(), clonedPokemon.getBattleId().get().get()));
+                        clonedPokemon.remove(Entity.RemovalReason.DISCARDED); // This will call despawnPokemon event and remove it from the list
+                        clonedPokemonIterator.remove();
                     } else {
                         CobblemonChallenge.LOGGER.debug(String.format("Removing cloned pokemon from world that no longer has battle id: %s", clonedPokemon.getDisplayName().getString()));
-
+                        clonedPokemon.remove(Entity.RemovalReason.DISCARDED); // This will call despawnPokemon event and remove it from the list
+                        clonedPokemonIterator.remove();
                     }
-                    clonedPokemon.remove(Entity.RemovalReason.DISCARDED); // This will call despawnPokemon event and remove it from the list
-                    clonedPokemonIterator.remove();
                 }
                 battleIterator.remove(); // Remove hanging battle from list
             }
