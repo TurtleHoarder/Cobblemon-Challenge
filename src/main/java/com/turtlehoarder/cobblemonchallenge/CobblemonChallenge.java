@@ -36,7 +36,7 @@ public class CobblemonChallenge {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, commonSpec);
         MinecraftForge.EVENT_BUS.register(ChallengeEventHandler.class);
         MinecraftForge.EVENT_BUS.addListener(this::commands);
-        DistExecutor.safeCallWhenOn(Dist.DEDICATED_SERVER, () -> ChallengeEventHandler::registerPostVictoryEvent);
+        DistExecutor.safeCallWhenOn(Dist.DEDICATED_SERVER, () -> ChallengeEventHandler::registerCobblemonEvents);
     }
 
     public void commands(RegisterCommandsEvent e) {
