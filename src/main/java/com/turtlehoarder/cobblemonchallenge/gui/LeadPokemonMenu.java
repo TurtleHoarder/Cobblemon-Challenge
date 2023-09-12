@@ -21,7 +21,12 @@ public class LeadPokemonMenu extends ChestMenu {
     @Override
     public void clicked(int pSlotId, int pButton, ClickType pClickType, Player pPlayer) {
         CobblemonChallenge.LOGGER.info(String.format("Clicked on a location: pSlotId=%d pButton=%d, clicktype=%s, player=%s!!", pSlotId, pButton, pClickType.toString(), pPlayer.getDisplayName().getString()));
-        CobblemonChallenge.LOGGER.info("Clicked Item: " + getSlot(pSlotId).getItem().getDisplayName().getString());
-
+        if (isValidSlotIndex(pSlotId)) {
+            CobblemonChallenge.LOGGER.info("Clicked Item: " + getSlot(pSlotId).getItem().getDisplayName().getString());
+            if (pSlotId % 9 == 0) {
+                CobblemonChallenge.LOGGER.info(String.format("Selected pokemon @ %d", pSlotId / 9));
+                menuProvider.onSelectPokemonSlot(this, pSlotId / 9);
+            }
+        }
     }
 }

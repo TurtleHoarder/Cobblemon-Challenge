@@ -53,31 +53,27 @@ public class ChallengeUtil {
     public static ItemLike getDisplayBlockForPokemon(Pokemon pokemon) {
         ElementalType type = pokemon.getPrimaryType();
         return switch (type.getName()) {
-            case "normal" -> Blocks.WHITE_WOOL;
-            case "fire" -> Blocks.RED_WOOL;
-            case "water" -> Blocks.BLUE_WOOL;
-            case "grass" -> Blocks.GREEN_WOOL;
-            case "electric" -> Blocks.YELLOW_WOOL;
-            case "ice" -> Blocks.ICE;
-            case "fighting" -> Blocks.RED_CONCRETE;
-            case "poison" -> Blocks.PURPLE_WOOL;
-            case "ground" -> Blocks.BROWN_WOOL;
-            case "flying" -> Items.LIGHT_BLUE_WOOL;
-            case "psychic" -> Blocks.MAGENTA_WOOL;
-            case "bug" -> Blocks.LIME_WOOL;
-            case "rock" -> Blocks.GRAY_WOOL;
-            case "ghost" -> Blocks.BLACK_STAINED_GLASS;
-            case "dragon" -> Blocks.BLUE_CONCRETE;
-            case "dark" -> Blocks.BLACK_WOOL;
-            case "steel" -> Blocks.IRON_BLOCK;
-            case "fairy" -> Blocks.PINK_STAINED_GLASS;
-            default -> Blocks.BEDROCK;
+            case "normal" -> Blocks.WHITE_STAINED_GLASS_PANE;
+            case "fire", "fighting" -> Blocks.RED_STAINED_GLASS_PANE;
+            case "water", "dragon" -> Blocks.BLUE_STAINED_GLASS_PANE;
+            case "grass" -> Blocks.GREEN_STAINED_GLASS_PANE;
+            case "electric" -> Blocks.YELLOW_STAINED_GLASS_PANE;
+            case "ice" -> Blocks.LIGHT_BLUE_STAINED_GLASS_PANE;
+            case "poison" -> Blocks.PURPLE_STAINED_GLASS_PANE;
+            case "ground", "rock" -> Blocks.BROWN_STAINED_GLASS_PANE;
+            case "flying" -> Items.LIGHT_BLUE_STAINED_GLASS_PANE;
+            case "psychic" -> Blocks.MAGENTA_STAINED_GLASS_PANE;
+            case "bug" -> Blocks.LIME_STAINED_GLASS_PANE;
+            case "ghost" -> Blocks.GRAY_STAINED_GLASS;
+            case "dark", "steel" -> Blocks.GRAY_STAINED_GLASS_PANE;
+            case "fairy" -> Blocks.PINK_STAINED_GLASS_PANE;
+            default -> Blocks.GLASS_PANE;
         };
     }
 
     public static ListTag generateLoreTagForPokemon(Pokemon pokemon) {
         ListTag loreTag = new ListTag();
-        Component abilityComponent = Component.literal(String.format(ChatFormatting.AQUA  + "Ability: %s", LocalizationUtilsKt.lang(String.format("ability.%s", pokemon.getAbility().getName()))));
+        Component abilityComponent = Component.literal(String.format(ChatFormatting.AQUA  + "Ability: %s", LocalizationUtilsKt.lang(String.format("ability.%s", pokemon.getAbility().getName())).getString()));
         Component moveSeperator = Component.literal( "Moves:");
         loreTag.add(StringTag.valueOf(Component.Serializer.toJson(abilityComponent)));
         loreTag.add(StringTag.valueOf(Component.Serializer.toJson(moveSeperator)));
