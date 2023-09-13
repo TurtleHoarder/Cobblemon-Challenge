@@ -11,6 +11,7 @@ import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.config.ChallengeConfig;
+import com.turtlehoarder.cobblemonchallenge.gui.LeadPokemonSelectionSession;
 import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
 import kotlin.Unit;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
@@ -158,7 +159,8 @@ public class ChallengeEventHandler {
     }
 
     public static void onServerTick(MinecraftServer server) {
-        if (server.getTickCount() % 20 == 0) {
+        int tickCount = server.getTickCount();
+        if (tickCount % 20 == 0) {
             long nowTime = System.currentTimeMillis();
             Iterator<Map.Entry<String, ChallengeCommand.ChallengeRequest>> requestIterator = ChallengeCommand.CHALLENGE_REQUESTS.entrySet().iterator();
             while (requestIterator.hasNext()) {
@@ -174,11 +176,28 @@ public class ChallengeEventHandler {
                     requestIterator.remove();
                 }
             }
+            Iterator<Map.Entry<UUID, ChallengeCommand.LeadPokemonSelection>> selectionIterator = ChallengeCommand.ACTIVE_SELECTIONS.entrySet().iterator();
+            while (selectionIterator.hasNext()) {
+                LeadPokemonSelectionSession selectionSession = selectionIterator.next().getValue().selectionWrapper();
+                selectionSession.doTick();
+                if (selectionSession.creationTime + LeadPokemonSelectionSession.LEAD_TIMEOUT_MILLIS < nowTime) {
+                    selectionSession.timeoutRequest();
+                    selectionIterator.remove();
+                }
+            }
+
+            Iterator<LeadPokemonSelectionSession> cancelSessions = LeadPokemonSelectionSession.SESSIONS_TO_CANCEL.iterator();
+            while (cancelSessions.hasNext()) {
+                LeadPokemonSelectionSession session = cancelSessions.next();
+                ChallengeCommand.ACTIVE_SELECTIONS.remove(session.getUuid());
+                CobblemonChallenge.LOGGER.info(String.format("Removing hanging session. Size remaining: %d | %d", ChallengeCommand.ACTIVE_SELECTIONS.size(), LeadPokemonSelectionSession.SESSIONS_TO_CANCEL.size()));
+                cancelSessions.remove();
+            }
         }
         // Once per 30 seconds, check for hanging cloned pokemon that are no longer part of a battle and remove them
-        if (server.getTickCount() % 600 == 0) {
+        if (tickCount % 600 == 0) {
             Iterator<PokemonEntity> clonedPokemonIterator = ChallengeBattleBuilder.clonedPokemonList.iterator();
-           while (clonedPokemonIterator.hasNext()) {
+            while (clonedPokemonIterator.hasNext()) {
                 PokemonEntity pokemonEntity = clonedPokemonIterator.next();
                 if (pokemonEntity.getBattleId().get().isEmpty()) {
                     pokemonEntity.remove(Entity.RemovalReason.DISCARDED);
