@@ -1,7 +1,6 @@
 package com.turtlehoarder.cobblemonchallenge.command;
 
 import com.cobblemon.mod.common.Cobblemon;
-import com.cobblemon.mod.common.battles.BattleFormat;
 import com.cobblemon.mod.common.battles.BattleRegistry;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -10,10 +9,9 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.gui.LeadPokemonMenuProvider;
 import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
-import com.turtlehoarder.cobblemonchallenge.util.LeadPokemonSelectionWrapper;
+import com.turtlehoarder.cobblemonchallenge.gui.LeadPokemonSelectionSession;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -24,10 +22,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ChestMenu;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -35,7 +29,7 @@ import java.util.UUID;
 public class ChallengeCommand {
 
     public record ChallengeRequest(String id, ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, long createdTime) {}
-    public record LeadPokemonSelection(LeadPokemonSelectionWrapper selectionWrapper, long createdTime) {}
+    public record LeadPokemonSelection(LeadPokemonSelectionSession selectionWrapper, long createdTime) {}
 
     private static final float MAX_DISTANCE = ChallengeConfig.MAX_CHALLENGE_DISTANCE.get();
     private static final boolean USE_DISTANCE_RESTRICTION = ChallengeConfig.CHALLENGE_DISTANCE_RESTRICTION.get();
@@ -87,7 +81,7 @@ public class ChallengeCommand {
         try {
             ServerPlayer p = c.getSource().getPlayer();
             ServerPlayer challenegedPlayer = c.getArgument("player", EntitySelector.class).findSinglePlayer(c.getSource());
-            p.openMenu(new LeadPokemonMenuProvider(null, p, challenegedPlayer));
+            p.openMenu(new LeadPokemonMenuProvider(null, p, challenegedPlayer, null));
             return Command.SINGLE_SUCCESS;
         } catch (Exception e) {
             c.getSource().sendFailure(Component.literal("An unexpected error has occurred"));
@@ -121,7 +115,13 @@ public class ChallengeCommand {
                 return 0;
             }
 
-            float distance = challengedPlayer.distanceTo(challengerPlayer);
+            if (Cobblemon.INSTANCE.getStorage().getParty(challengerPlayer).occupied() == 0) {
+                c.getSource().sendFailure(Component.literal("Cannot send challenge while you have no pokemon!"));
+                return 0;
+            }
+
+
+                float distance = challengedPlayer.distanceTo(challengerPlayer);
             if (USE_DISTANCE_RESTRICTION && (distance > MAX_DISTANCE || challengedPlayer.getLevel() != challengerPlayer.getLevel())) {
                 c.getSource().sendFailure(Component.literal(String.format("Target must be less than %d blocks away to initiate a challenge", (int)MAX_DISTANCE)));
                 return 0;
@@ -192,6 +192,16 @@ public class ChallengeCommand {
                 return 0;
             }
 
+            if (Cobblemon.INSTANCE.getStorage().getParty(request.challengedPlayer).occupied() == 0) {
+                c.getSource().sendFailure(Component.literal("Cannot accept challenge: You have no pokemon!"));
+                return 0;
+            }
+
+            if (Cobblemon.INSTANCE.getStorage().getParty(request.challengerPlayer).occupied() == 0) {
+                c.getSource().sendFailure(Component.literal(String.format("Cannot accept challenge: %s has no pokemon... somehow!", request.challengerPlayer.getDisplayName().getString())));
+                return 0;
+            }
+
             float distance = request.challengerPlayer.distanceTo(request.challengedPlayer);
             if (USE_DISTANCE_RESTRICTION && (distance > MAX_DISTANCE || request.challengerPlayer.getLevel() != request.challengedPlayer.getLevel())) {
                 c.getSource().sendFailure(Component.literal(String.format("Target must be less than %d blocks away to accept a challenge", (int)MAX_DISTANCE)));
@@ -217,7 +227,7 @@ public class ChallengeCommand {
         // Register the selection process for tracking purposes
         UUID selectionId = UUID.randomUUID();
         long creationTime = System.currentTimeMillis();
-        LeadPokemonSelectionWrapper selectionWrapper = new LeadPokemonSelectionWrapper(selectionId, creationTime, request);
+        LeadPokemonSelectionSession selectionWrapper = new LeadPokemonSelectionSession(selectionId, creationTime, request);
         ACTIVE_SELECTIONS.put(selectionId, new LeadPokemonSelection(selectionWrapper, creationTime));
         selectionWrapper.openPlayerMenus(); // Force both players to open their menus
     }

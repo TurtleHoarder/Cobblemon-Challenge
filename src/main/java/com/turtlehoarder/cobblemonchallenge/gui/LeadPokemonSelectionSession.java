@@ -1,31 +1,37 @@
-package com.turtlehoarder.cobblemonchallenge.util;
+package com.turtlehoarder.cobblemonchallenge.gui;
 
 import com.cobblemon.mod.common.battles.BattleFormat;
 import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBuilderException;
 import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
-import com.turtlehoarder.cobblemonchallenge.gui.LeadPokemonMenuProvider;
+import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.UUID;
+import java.util.Vector;
 
-public class LeadPokemonSelectionWrapper {
+public class LeadPokemonSelectionSession {
     private final LeadPokemonMenuProvider challengerMenuProvider;
     private final LeadPokemonMenuProvider challengedMenuProvider;
     private final ChallengeCommand.ChallengeRequest originRequest;
     private final UUID uuid;
     public long creationTime;
     private int pokemonToSelect = 1;
+    private boolean timedOut = false;
 
-    public LeadPokemonSelectionWrapper(UUID uuid, long creationTime,  ChallengeCommand.ChallengeRequest request) {
+    public static Vector<LeadPokemonSelectionSession> SESSIONS_TO_CANCEL = new Vector<>();
+
+    public static int LEAD_TIMEOUT_MILLIS = 60000;
+
+    public LeadPokemonSelectionSession(UUID uuid, long creationTime, ChallengeCommand.ChallengeRequest request) {
         this.originRequest = request;
         this.uuid = uuid;
         this.creationTime = creationTime;
-        challengerMenuProvider = new LeadPokemonMenuProvider(this, request.challengerPlayer(), request.challengedPlayer());
-        challengedMenuProvider = new LeadPokemonMenuProvider(this, request.challengedPlayer(), request.challengerPlayer());
+        challengerMenuProvider = new LeadPokemonMenuProvider(this, request.challengerPlayer(), request.challengedPlayer(), request);
+        challengedMenuProvider = new LeadPokemonMenuProvider(this, request.challengedPlayer(), request.challengerPlayer(), request);
     }
 
     public void openPlayerMenus() {
@@ -54,6 +60,7 @@ public class LeadPokemonSelectionWrapper {
 
     private void beginBattle() {
         int level = originRequest.level();
+        SESSIONS_TO_CANCEL.add(this);
         ChallengeBattleBuilder challengeBuilder = new ChallengeBattleBuilder();
         try {
             challengeBuilder.lvlxpvp(originRequest.challengerPlayer(), originRequest.challengedPlayer(), BattleFormat.Companion.getGEN_9_SINGLES(), level, challengerMenuProvider.selectedSlots, challengedMenuProvider.selectedSlots);
@@ -79,11 +86,30 @@ public class LeadPokemonSelectionWrapper {
         }
     }
 
-    public void onPlayerCloseMenu(ServerPlayer player) {
-        ServerPlayer otherPlayer = getOtherPlayer(player);
-        challengerMenuProvider.forceCloseMenu();
+    public void timeoutRequest() {
+        this.timedOut = true;
+        if (ChallengeUtil.isPlayerOnline(originRequest.challengerPlayer())) {
+            originRequest.challengerPlayer().sendSystemMessage(Component.literal(ChatFormatting.RED + "Challenge timed out: Selecting lead took too long"));
+        }
+        if (ChallengeUtil.isPlayerOnline(originRequest.challengedPlayer())) {
+            originRequest.challengedPlayer().sendSystemMessage(Component.literal(ChatFormatting.RED + "Challenge timed out: Selecting lead took too long"));
+        }
         challengedMenuProvider.forceCloseMenu();
-        otherPlayer.sendSystemMessage(Component.literal(ChatFormatting.RED + String.format("%s has canceled the request", player.getDisplayName().getString())));
+        challengerMenuProvider.forceCloseMenu();
+    }
+
+    public void onPlayerCloseMenu(ServerPlayer player) {
+        if (!timedOut) { // Don't send the message if the menus were forced close by timeout
+            ServerPlayer otherPlayer = getOtherPlayer(player);
+            otherPlayer.sendSystemMessage(Component.literal(ChatFormatting.RED + String.format("%s has canceled the request", player.getDisplayName().getString())));
+            challengerMenuProvider.forceCloseMenu();
+            challengedMenuProvider.forceCloseMenu();
+            SESSIONS_TO_CANCEL.add(this);
+        }
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     public void doTick() {

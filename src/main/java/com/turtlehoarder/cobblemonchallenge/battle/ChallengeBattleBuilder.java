@@ -11,10 +11,10 @@ import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
+import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -51,23 +51,17 @@ public class ChallengeBattleBuilder {
                 throw new ChallengeBuilderException();
             }
             BattlePokemon leadBattlePokemon = BattlePokemon.Companion.safeCopyOf(leadPokemon);
-            battlePokemonList.add(applyFormatTransformations(leadBattlePokemon, level));
+            battlePokemonList.add(ChallengeUtil.applyFormatTransformations(format,leadBattlePokemon, level));
             for (int slot = 0; slot < party.size(); slot++) {
                 if (slot != leadSlot) {
                     Pokemon pokemon = party.get(slot);
                     if (pokemon != null) {
-                        BattlePokemon battlePokemon = applyFormatTransformations(BattlePokemon.Companion.safeCopyOf(pokemon), level);
+                        BattlePokemon battlePokemon = ChallengeUtil.applyFormatTransformations(format, BattlePokemon.Companion.safeCopyOf(pokemon), level);
                         battlePokemonList.add(battlePokemon);
                     }
                 }
             }
         }
         return battlePokemonList;
-    }
-
-    private BattlePokemon applyFormatTransformations(BattlePokemon pokemon, int level) {
-        pokemon.getEffectedPokemon().setLevel(level);
-        pokemon.getEffectedPokemon().heal();
-        return pokemon;
     }
 }
