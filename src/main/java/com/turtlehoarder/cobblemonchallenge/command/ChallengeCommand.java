@@ -127,7 +127,7 @@ public class ChallengeCommand {
             LAST_SENT_CHALLENGE.put(challengerPlayer.getUUID(), System.currentTimeMillis());
             return Command.SINGLE_SUCCESS;
         } catch (Exception e) {
-            c.getSource().sendFailure(Component.literal("An unexpected error has occurred"));
+            c.getSource().sendFailure(Component.literal("An unexpected error has occurred when sending challenge: " + e.getMessage()));
             e.printStackTrace();
             return 0;
         }
@@ -149,7 +149,7 @@ public class ChallengeCommand {
 
             return Command.SINGLE_SUCCESS;
         } catch (Exception e) {
-            c.getSource().sendFailure(Component.literal("An unexpected error has occurred"));
+            c.getSource().sendFailure(Component.literal("An unexpected error has occurred: " + e.getMessage()));
             e.printStackTrace();
             return 0;
         }
@@ -198,7 +198,7 @@ public class ChallengeCommand {
             setupLeadPokemonFlow(challengeRequestRemoved);
             return Command.SINGLE_SUCCESS;
         } catch (Exception exc) {
-            c.getSource().sendFailure(Component.literal("Unexpected exception when sending challenge"));
+            c.getSource().sendFailure(Component.literal("Unexpected exception when accepting challenge: " + exc.getMessage()));
             exc.printStackTrace();
             return 1;
         }
