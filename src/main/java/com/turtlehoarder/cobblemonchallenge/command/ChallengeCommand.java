@@ -46,11 +46,6 @@ public class ChallengeCommand {
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(c -> challengePlayer(c, DEFAULT_LEVEL)));
 
-        // Basic challenge command that initiates a challenge with the default challenge level
-        LiteralArgumentBuilder<CommandSourceStack> testCommandBuilder = Commands.literal("testchallenge")
-                .then(Commands.argument("player", EntityArgument.player())
-                    .executes(ChallengeCommand::testGui));
-
         // Challenge command that initiates a challenge with a given level
         LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOption = Commands.literal("challenge")
                 .then(Commands.argument("player", EntityArgument.player())
@@ -70,24 +65,10 @@ public class ChallengeCommand {
                 .then(Commands.argument("id", StringArgumentType.string()).executes(c -> rejectChallenge(c, StringArgumentType.getString(c, "id"))));
 
 
-        dispatcher.register(testCommandBuilder);
         dispatcher.register(commandBuilderAcceptChallenge);
         dispatcher.register(commandBuilderRejectChallenge);
         dispatcher.register(baseCommandBuilder);
         dispatcher.register(commandBuilderWithLevelOption);
-    }
-
-    public static int testGui(CommandContext<CommandSourceStack> c) {
-        try {
-            ServerPlayer p = c.getSource().getPlayer();
-            ServerPlayer challenegedPlayer = c.getArgument("player", EntitySelector.class).findSinglePlayer(c.getSource());
-            p.openMenu(new LeadPokemonMenuProvider(null, p, challenegedPlayer, null));
-            return Command.SINGLE_SUCCESS;
-        } catch (Exception e) {
-            c.getSource().sendFailure(Component.literal("An unexpected error has occurred"));
-            e.printStackTrace();
-            return 0;
-        }
     }
 
     public static int challengePlayer(CommandContext<CommandSourceStack> c, int level) {
