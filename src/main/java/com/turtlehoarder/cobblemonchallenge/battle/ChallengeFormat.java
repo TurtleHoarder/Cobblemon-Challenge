@@ -1,6 +1,5 @@
 package com.turtlehoarder.cobblemonchallenge.battle;
 
-public class LeadPokemonTracker {
-
-
+public enum ChallengeFormat {
+    STANDARD_6V6
 }

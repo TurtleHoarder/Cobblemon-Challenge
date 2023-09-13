@@ -13,6 +13,7 @@ import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.config.ChallengeConfig;
 import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
+import com.turtlehoarder.cobblemonchallenge.util.LeadPokemonSelectionWrapper;
 import kotlin.Unit;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -151,32 +152,39 @@ public class ChallengeEventHandler {
 
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent tickEvent) {
-        if (tickEvent.getServer().getTickCount() % 20 == 0) {
-            long nowTime = System.currentTimeMillis();
-            Iterator<Map.Entry<String, ChallengeCommand.ChallengeRequest>> requestIterator = ChallengeCommand.CHALLENGE_REQUESTS.entrySet().iterator();
-            while (requestIterator.hasNext()) {
-                Map.Entry<String, ChallengeCommand.ChallengeRequest> requestMap = requestIterator.next();
-                ChallengeCommand.ChallengeRequest request = requestMap.getValue();
-                if (request.createdTime() + ChallengeConfig.REQUEST_EXPIRATION_MILLIS.get() < nowTime) {
-                    if (ChallengeUtil.isPlayerOnline(request.challengedPlayer())) {
-                        request.challengedPlayer().displayClientMessage(Component.literal(ChatFormatting.RED + String.format("Challenge from %s has expired", request.challengerPlayer().getDisplayName().getString())), false);
+        if (tickEvent.phase == TickEvent.Phase.START) {
+            if (tickEvent.getServer().getTickCount() % 20 == 0) {
+                long nowTime = System.currentTimeMillis();
+                Iterator<Map.Entry<String, ChallengeCommand.ChallengeRequest>> requestIterator = ChallengeCommand.CHALLENGE_REQUESTS.entrySet().iterator();
+                while (requestIterator.hasNext()) {
+                    Map.Entry<String, ChallengeCommand.ChallengeRequest> requestMap = requestIterator.next();
+                    ChallengeCommand.ChallengeRequest request = requestMap.getValue();
+                    if (request.createdTime() + ChallengeConfig.REQUEST_EXPIRATION_MILLIS.get() < nowTime) {
+                        if (ChallengeUtil.isPlayerOnline(request.challengedPlayer())) {
+                            request.challengedPlayer().displayClientMessage(Component.literal(ChatFormatting.RED + String.format("Challenge from %s has expired", request.challengerPlayer().getDisplayName().getString())), false);
+                        }
+                        if (ChallengeUtil.isPlayerOnline(request.challengerPlayer())) {
+                            request.challengerPlayer().displayClientMessage(Component.literal(ChatFormatting.RED + String.format("Challenge to %s has expired", request.challengedPlayer().getDisplayName().getString())), false);
+                        }
+                        requestIterator.remove();
                     }
-                    if (ChallengeUtil.isPlayerOnline(request.challengerPlayer())) {
-                        request.challengerPlayer().displayClientMessage(Component.literal(ChatFormatting.RED + String.format("Challenge to %s has expired", request.challengedPlayer().getDisplayName().getString())), false);
-                    }
-                    requestIterator.remove();
+                }
+                Iterator<Map.Entry<UUID, ChallengeCommand.LeadPokemonSelection>> selectionIterator = ChallengeCommand.ACTIVE_SELECTIONS.entrySet().iterator();
+                while (selectionIterator.hasNext()) {
+                    Map.Entry<UUID, ChallengeCommand.LeadPokemonSelection> selectionSession = selectionIterator.next();
+                    selectionSession.getValue().selectionWrapper().doTick();
                 }
             }
-        }
-        // Once per 30 seconds, check for hanging cloned pokemon that are no longer part of a battle and remove them
-        if (tickEvent.getServer().getTickCount() % 600 == 0) {
-            Iterator<PokemonEntity> clonedPokemonIterator = ChallengeBattleBuilder.clonedPokemonList.iterator();
-           while (clonedPokemonIterator.hasNext()) {
-                PokemonEntity pokemonEntity = clonedPokemonIterator.next();
-                if (pokemonEntity.getBattleId().get().isEmpty()) {
-                    pokemonEntity.remove(Entity.RemovalReason.DISCARDED);
-                    clonedPokemonIterator.remove();
-                    CobblemonChallenge.LOGGER.debug(String.format("Removed hanging duplicate pokemon %s", pokemonEntity.getDisplayName().getString()));
+            // Once per 30 seconds, check for hanging cloned pokemon that are no longer part of a battle and remove them
+            if (tickEvent.getServer().getTickCount() % 600 == 0) {
+                Iterator<PokemonEntity> clonedPokemonIterator = ChallengeBattleBuilder.clonedPokemonList.iterator();
+                while (clonedPokemonIterator.hasNext()) {
+                    PokemonEntity pokemonEntity = clonedPokemonIterator.next();
+                    if (pokemonEntity.getBattleId().get().isEmpty()) {
+                        pokemonEntity.remove(Entity.RemovalReason.DISCARDED);
+                        clonedPokemonIterator.remove();
+                        CobblemonChallenge.LOGGER.debug(String.format("Removed hanging duplicate pokemon %s", pokemonEntity.getDisplayName().getString()));
+                    }
                 }
             }
         }
