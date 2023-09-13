@@ -61,6 +61,8 @@ public class LeadPokemonSelectionSession {
     private void beginBattle() {
         int level = originRequest.level();
         SESSIONS_TO_CANCEL.add(this);
+        challengerMenuProvider.forceCloseMenu();
+        challengedMenuProvider.forceCloseMenu();
         ChallengeBattleBuilder challengeBuilder = new ChallengeBattleBuilder();
         try {
             challengeBuilder.lvlxpvp(originRequest.challengerPlayer(), originRequest.challengedPlayer(), BattleFormat.Companion.getGEN_9_SINGLES(), level, challengerMenuProvider.selectedSlots, challengedMenuProvider.selectedSlots);
@@ -99,7 +101,7 @@ public class LeadPokemonSelectionSession {
     }
 
     public void onPlayerCloseMenu(ServerPlayer player) {
-        if (!timedOut) { // Don't send the message if the menus were forced close by timeout
+        if (!timedOut && !isBattleReady()) { // Don't send the message if the menus were forced close by timeout
             ServerPlayer otherPlayer = getOtherPlayer(player);
             otherPlayer.sendSystemMessage(Component.literal(ChatFormatting.RED + String.format("%s has canceled the request", player.getDisplayName().getString())));
             challengerMenuProvider.forceCloseMenu();
