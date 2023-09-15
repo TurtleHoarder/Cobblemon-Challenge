@@ -126,7 +126,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
     }
 
     private void setupGlassFiller(LeadPokemonMenu leadPokemonMenu) {
-        int timeLeft = (int) Math.ceil(((selectionSession.creationTime + 60000) - System.currentTimeMillis()) / 1000f);
+        int timeLeft = (int) Math.ceil(((selectionSession.creationTime + LeadPokemonSelectionSession.LEAD_TIMEOUT_MILLIS) - System.currentTimeMillis()) / 1000f);
         for (int column = 1; column <= 7; column++) {
             for (int row = 0; row < 6; row++) {
                 int itemSlot = (row * 9) + column;
