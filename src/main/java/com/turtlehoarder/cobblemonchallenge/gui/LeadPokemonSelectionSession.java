@@ -22,9 +22,11 @@ public class LeadPokemonSelectionSession {
     private int pokemonToSelect = 1;
     private boolean timedOut = false;
 
+    private boolean closedOut = false;
+
     public static Vector<LeadPokemonSelectionSession> SESSIONS_TO_CANCEL = new Vector<>();
 
-    public static int LEAD_TIMEOUT_MILLIS = 60000;
+    public static int LEAD_TIMEOUT_MILLIS = 90000;
 
     public LeadPokemonSelectionSession(UUID uuid, long creationTime, ChallengeCommand.ChallengeRequest request) {
         this.originRequest = request;
@@ -71,6 +73,10 @@ public class LeadPokemonSelectionSession {
         }
     }
 
+    public boolean teamPreviewOn() {
+        return originRequest.preview();
+    }
+
     private boolean isBattleReady() {
         return challengedMenuProvider.selectedSlots.size() == getMaxPokemonSelection() && challengerMenuProvider.selectedSlots.size() == getMaxPokemonSelection();
     }
@@ -101,9 +107,11 @@ public class LeadPokemonSelectionSession {
     }
 
     public void onPlayerCloseMenu(ServerPlayer player) {
-        if (!timedOut && !isBattleReady()) { // Don't send the message if the menus were forced close by timeout
+        if (!timedOut && !isBattleReady() && !closedOut) { // Don't send the message if the menus were forced close by timeout
+            closedOut = true;
             ServerPlayer otherPlayer = getOtherPlayer(player);
-            otherPlayer.sendSystemMessage(Component.literal(ChatFormatting.RED + String.format("%s has canceled the request", player.getDisplayName().getString())));
+            player.sendSystemMessage(Component.literal(ChatFormatting.RED + String.format(String.format("You have cancelled the challenge to %s", otherPlayer.getDisplayName().getString()))));
+            otherPlayer.sendSystemMessage(Component.literal(ChatFormatting.RED + String.format("%s has cancelled the request", player.getDisplayName().getString())));
             challengerMenuProvider.forceCloseMenu();
             challengedMenuProvider.forceCloseMenu();
             SESSIONS_TO_CANCEL.add(this);

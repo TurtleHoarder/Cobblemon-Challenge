@@ -28,7 +28,7 @@ import java.util.UUID;
 
 public class ChallengeCommand {
 
-    public record ChallengeRequest(String id, ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, long createdTime) {}
+    public record ChallengeRequest(String id, ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, boolean preview, long createdTime) {}
     public record LeadPokemonSelection(LeadPokemonSelectionSession selectionWrapper, long createdTime) {}
 
     private static final float MAX_DISTANCE = ChallengeConfig.MAX_CHALLENGE_DISTANCE.get();
@@ -44,17 +44,49 @@ public class ChallengeCommand {
         // Basic challenge command that initiates a challenge with the default challenge level
         LiteralArgumentBuilder<CommandSourceStack> baseCommandBuilder = Commands.literal("challenge")
                 .then(Commands.argument("player", EntityArgument.player())
-                        .executes(c -> challengePlayer(c, DEFAULT_LEVEL)));
+                        .executes(c -> challengePlayer(c, DEFAULT_LEVEL, true)));
+
+        // Basic challenge command that initiates a challenge with the default challenge level
+        LiteralArgumentBuilder<CommandSourceStack> baseCommandBuilderNoPreview = Commands.literal("challenge")
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.literal("nopreview")
+                            .executes(c -> challengePlayer(c, DEFAULT_LEVEL, false))));
+
 
         // Challenge command that initiates a challenge with a given level
         LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOption = Commands.literal("challenge")
                 .then(Commands.argument("player", EntityArgument.player())
                         .then(Commands.literal("level")
                             .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
-                                 .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"))
+                                 .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), true)
                              )
                         )
                     )
+                );
+        // Challenge command that initiates a challenge with a given level
+        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOptionNoPreview = Commands.literal("challenge")
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.literal("level")
+                                .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
+                                        .then(Commands.literal("nopreview")
+                                            .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), false)
+                                        )
+                                )
+                        )
+                )
+            );
+
+        // Challenge command that initiates a challenge with a given level
+        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOptionNoPreviewBefore = Commands.literal("challenge")
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.literal("nopreview")
+                            .then(Commands.literal("level")
+                                .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
+                                                .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), false)
+                                                )
+                                        )
+                                )
+                        )
                 );
 
         // Command called to accept challenges
@@ -67,11 +99,16 @@ public class ChallengeCommand {
 
         dispatcher.register(commandBuilderAcceptChallenge);
         dispatcher.register(commandBuilderRejectChallenge);
-        dispatcher.register(baseCommandBuilder);
         dispatcher.register(commandBuilderWithLevelOption);
+        // Register nopreview section
+        dispatcher.register(commandBuilderWithLevelOptionNoPreview);
+        dispatcher.register(baseCommandBuilderNoPreview);
+        dispatcher.register(commandBuilderWithLevelOptionNoPreviewBefore);
+        dispatcher.register(baseCommandBuilder);
+
     }
 
-    public static int challengePlayer(CommandContext<CommandSourceStack> c, int level) {
+    public static int challengePlayer(CommandContext<CommandSourceStack> c, int level, boolean preview) {
         try {
             ServerPlayer challengerPlayer = c.getSource().getPlayer();
             ServerPlayer challengedPlayer = c.getArgument("player", EntitySelector.class).findSinglePlayer(c.getSource());
@@ -113,10 +150,14 @@ public class ChallengeCommand {
                 return 0;
             }
 
-            ChallengeRequest request = ChallengeUtil.createChallengeRequest(challengerPlayer, challengedPlayer, level);
+            ChallengeRequest request = ChallengeUtil.createChallengeRequest(challengerPlayer, challengedPlayer, level, preview);
             CHALLENGE_REQUESTS.put(request.id, request);
 
-            MutableComponent notificationComponent = Component.literal(ChatFormatting.YELLOW + String.format("You have been challenged to a " + ChatFormatting.BOLD + "level %d Pokemon battle" + ChatFormatting.RESET + ChatFormatting.YELLOW + " by %s!", level, challengerPlayer.getDisplayName().getString()));
+            String options = "";
+            if (!request.preview()) {
+                options = ChatFormatting.GOLD + " [NoTeamPreview]";
+            }
+            MutableComponent notificationComponent = Component.literal(ChatFormatting.YELLOW + String.format("You have been challenged to a " + ChatFormatting.BOLD + "level %d Pokemon battle" + ChatFormatting.RESET + ChatFormatting.YELLOW + " by %s!" + options, level, challengerPlayer.getDisplayName().getString()));
             MutableComponent interactiveComponent = Component.literal("Click to accept or deny: ");
             interactiveComponent.append(Component.literal(ChatFormatting.GREEN + "Battle!").setStyle(Style.EMPTY.withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/acceptchallenge %s", request.id)))));
             interactiveComponent.append(Component.literal(" or "));
