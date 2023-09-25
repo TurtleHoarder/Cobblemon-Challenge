@@ -1,11 +1,14 @@
 package com.turtlehoarder.cobblemonchallenge.event;
 
+import com.cobblemon.mod.common.Cobblemon;
+import com.cobblemon.mod.common.CobblemonNetwork;
 import com.cobblemon.mod.common.api.Priority;
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.events.CobblemonEvents;
 import com.cobblemon.mod.common.api.storage.*;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
+import com.cobblemon.mod.common.net.messages.client.storage.party.SetPartyReferencePacket;
 import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
 
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
@@ -71,6 +74,9 @@ public class ChallengeEventHandler {
                 Iterator<ServerPlayer> participantIterator = participants.listIterator();
                 while (participantIterator.hasNext()) {
                     ServerPlayer player = participantIterator.next();
+                    /* Bug fix for stuck cobblemon input after battles. Since clients are switching to cloned pokemon UUIDs, their selected slot will be -1. By sending the party reference packet to them, we can reset this position */
+                    UUID partyuuid = Cobblemon.INSTANCE.getStorage().getParty(player).getUuid();
+                    CobblemonNetwork.INSTANCE.sendToPlayer(player, new SetPartyReferencePacket(partyuuid));
                     for (BattleActor actor : battleVictoryEvent.getWinners()) {
                         actor.getPlayerUUIDs().forEach(winnerUUID -> {
                             if (player.getUUID().equals(winnerUUID)) {
