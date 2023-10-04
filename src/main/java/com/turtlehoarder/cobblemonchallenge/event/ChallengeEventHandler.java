@@ -7,6 +7,8 @@ import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.events.CobblemonEvents;
 import com.cobblemon.mod.common.api.storage.*;
+import com.cobblemon.mod.common.api.storage.pc.PCPosition;
+import com.cobblemon.mod.common.api.storage.pc.PCStore;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.net.messages.client.storage.party.SetPartyReferencePacket;
 import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
@@ -16,6 +18,8 @@ import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.config.ChallengeConfig;
 import com.turtlehoarder.cobblemonchallenge.gui.LeadPokemonSelectionSession;
 import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
+import com.turtlehoarder.cobblemonchallenge.util.FakeStore;
+import com.turtlehoarder.cobblemonchallenge.util.FakeStorePosition;
 import kotlin.Unit;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -25,6 +29,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import java.util.*;
 
@@ -128,15 +133,27 @@ public class ChallengeEventHandler {
     }
 
     // To keep track of cloned pokemon, check to see if they have a battle id matching that of a Challenge upon spawning.
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void checkSpawn(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof PokemonEntity pokemonEntity) {
             if (ChallengeUtil.isPokemonPartOfChallenge(pokemonEntity)) {
                 CobblemonChallenge.LOGGER.debug(String.format("Entity Joined already in battle: %s | Battle id %s", event.getEntity().getDisplayName().getString(), pokemonEntity.getBattleId().get().get()));
                 ChallengeBattleBuilder.clonedPokemonList.add(pokemonEntity);
                 // Trick Cobblemon into thinking the clones are *not* wild pokemon. This will prevent duplicates being caught if something unexpected happens to the battle, like /stopbattle or a server crash
-                pokemonEntity.getPokemon().getStoreCoordinates().set(new StoreCoordinates<BottomlessPosition>(new BottomlessStore(new UUID(0,0)), new BottomlessPosition(0)));
-                pokemonEntity.getBusyLocks().add("Cloned_Pokemon"); // Busy lock prevents others from interacting with cloned pokemon
+                UUID foundplayerUUID = null;
+                PokemonBattle pb = ChallengeUtil.getAssociatedBattle(pokemonEntity);
+                if (pb != null) {
+                    foundplayerUUID = ChallengeUtil.getOwnerUuidOfClonedPokemon(pb, pokemonEntity);
+                }
+                if (pb != null) {
+                    UUID playerUUID = (foundplayerUUID != null ? foundplayerUUID : new UUID(0,0));
+                    FakeStore fakeStore = new FakeStore(playerUUID);
+                    // World's worst casting. Don't do this at home.
+                    PokemonStore<StorePosition> fakePartyStore = (PokemonStore<StorePosition>)(PokemonStore<?>) fakeStore;
+                    pokemonEntity.getPokemon().getStoreCoordinates().set(new StoreCoordinates<>(fakePartyStore, new FakeStorePosition()));
+                    pokemonEntity.getBusyLocks().add("Cloned_Pokemon"); // Busy lock prevents others from interacting with cloned pokemon
+                }
+
             }
         }
     }
