@@ -20,6 +20,12 @@ repositories {
             includeGroup "curse.maven"
         }
     }
+    maven {
+        url = "https://maven.impactdev.net/repository/development"
+        content {
+            includeGroup 'com.cobblemon'
+        }
+    }
 }
 
 dependencies {
@@ -27,18 +33,19 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings loom.layered() {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-1.19.2:2022.09.18@zip")
+        parchment("org.parchmentmc.data:parchment-1.20.1:2023.09.03@zip")
     }
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modImplementation"curse.maven:cobblemon-687131:4468330"
+    // For 1.20.1, we'll reference the snapshot build. THIS MUST CHANGE LATER AFTER OFFICIAL RELEASE:
+    modImplementation 'com.cobblemon:forge:1.4.0+1.20.1-20231008.002315-165'
     //modCompileOnlyApi"curse.maven:cobblemon-687131:4468321"
     modRuntimeOnly"curse.maven:cobblemon-687131:4468330"
 
-    modImplementation"curse.maven:architectury-419699:4384405"
+    modImplementation"curse.maven:architectury-419699:4663010"
 }
 
 base {

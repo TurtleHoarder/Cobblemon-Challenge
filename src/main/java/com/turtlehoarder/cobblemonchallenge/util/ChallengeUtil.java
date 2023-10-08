@@ -2,6 +2,7 @@ package com.turtlehoarder.cobblemonchallenge.util;
 
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.api.types.ElementalType;
+import com.cobblemon.mod.common.battles.ActiveBattlePokemon;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
@@ -32,6 +33,19 @@ public class ChallengeUtil {
             }
         }
         return false;
+    }
+
+    public static PokemonBattle getAssociatedBattle(PokemonEntity pokemonEntity) {
+        if (pokemonEntity.getBattleId().get().isEmpty()) {
+            return null;
+        }
+        UUID battleId = pokemonEntity.getBattleId().get().get();
+        for (PokemonBattle battle : ChallengeBattleBuilder.challengeBattles) {
+            if (battleId.equals(battle.getBattleId())) {
+                return battle;
+            }
+        }
+        return null;
     }
 
     public static boolean isBattleChallenge(UUID battleId) {
@@ -71,6 +85,8 @@ public class ChallengeUtil {
         };
     }
 
+
+
     public static ListTag generateLoreTagForPokemon(Pokemon pokemon) {
         ListTag loreTag = new ListTag();
         Component abilityComponent = Component.literal(String.format(ChatFormatting.GRAY  + "Ability: %s", ChatFormatting.YELLOW + LocalizationUtilsKt.lang(String.format("ability.%s", pokemon.getAbility().getName())).getString()));
@@ -90,6 +106,17 @@ public class ChallengeUtil {
             loreTag.add(StringTag.valueOf(Component.Serializer.toJson(moveComponent)));
         });
         return loreTag;
+    }
+
+    // Roundabout, but reliable way of getting the associated owner UUID of the cloned pokemon sent out in a challenge
+    public static UUID getOwnerUuidOfClonedPokemon(PokemonBattle battle, PokemonEntity pokemonEntity) {
+        for (ActiveBattlePokemon abp : battle.getActivePokemon()) {
+            if (pokemonEntity.getPokemon().getUuid().equals(abp.getBattlePokemon().getEffectedPokemon().getUuid())) {
+                return abp.getBattlePokemon().getOriginalPokemon().getOwnerUUID();
+            }
+        }
+
+        return null;
     }
 
     public static BattlePokemon applyFormatTransformations(ChallengeFormat format, BattlePokemon pokemon, int level) {

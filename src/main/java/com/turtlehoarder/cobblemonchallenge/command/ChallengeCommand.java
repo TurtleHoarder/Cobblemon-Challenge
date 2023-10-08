@@ -137,7 +137,7 @@ public class ChallengeCommand {
 
 
             float distance = challengedPlayer.distanceTo(challengerPlayer);
-            if (USE_DISTANCE_RESTRICTION && (distance > MAX_DISTANCE || challengedPlayer.getLevel() != challengerPlayer.getLevel())) {
+            if (USE_DISTANCE_RESTRICTION && (distance > MAX_DISTANCE || challengedPlayer.level() != challengerPlayer.level())) {
                 c.getSource().sendFailure(Component.literal(String.format("Target must be less than %d blocks away to initiate a challenge", (int)MAX_DISTANCE)));
                 return 0;
             }
@@ -221,7 +221,7 @@ public class ChallengeCommand {
             }
 
             float distance = request.challengerPlayer.distanceTo(request.challengedPlayer);
-            if (USE_DISTANCE_RESTRICTION && (distance > MAX_DISTANCE || request.challengerPlayer.getLevel() != request.challengedPlayer.getLevel())) {
+            if (USE_DISTANCE_RESTRICTION && (distance > MAX_DISTANCE || request.challengerPlayer.level() != request.challengedPlayer.level())) {
                 c.getSource().sendFailure(Component.literal(String.format("Target must be less than %d blocks away to accept a challenge", (int)MAX_DISTANCE)));
                 return 0;
             }
