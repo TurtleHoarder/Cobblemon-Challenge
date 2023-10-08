@@ -16,6 +16,8 @@ import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.config.ChallengeConfig;
 import com.turtlehoarder.cobblemonchallenge.gui.LeadPokemonSelectionSession;
 import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
+import com.turtlehoarder.cobblemonchallenge.util.FakeStore;
+import com.turtlehoarder.cobblemonchallenge.util.FakeStorePosition;
 import kotlin.Unit;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -147,8 +149,21 @@ public class ChallengeEventHandler {
                 CobblemonChallenge.LOGGER.debug(String.format("Entity Joined already in battle: %s | Battle id %s", entity.getDisplayName().getString(), pokemonEntity.getBattleId().get().get()));
                 ChallengeBattleBuilder.clonedPokemonList.add(pokemonEntity);
                 // Trick Cobblemon into thinking the clones are *not* wild pokemon. This will prevent duplicates being caught if something unexpected happens to the battle, like /stopbattle or a server crash
-                pokemonEntity.getPokemon().getStoreCoordinates().set(new StoreCoordinates<BottomlessPosition>(new BottomlessStore(new UUID(0,0)), new BottomlessPosition(0)));
-                pokemonEntity.getBusyLocks().add("Cloned_Pokemon"); // Busy lock prevents others from interacting with cloned pokemon
+                UUID foundplayerUUID = null;
+                PokemonBattle pb = ChallengeUtil.getAssociatedBattle(pokemonEntity);
+                if (pb != null) {
+                    foundplayerUUID = ChallengeUtil.getOwnerUuidOfClonedPokemon(pb, pokemonEntity);
+                }
+                if (pb != null) {
+                    UUID playerUUID = (foundplayerUUID != null ? foundplayerUUID : new UUID(0,0));
+                    FakeStore fakeStore = new FakeStore(playerUUID);
+                    // World's worst casting. Don't do this at home.
+                    PokemonStore<StorePosition> fakePartyStore = (PokemonStore<StorePosition>)(PokemonStore<?>) fakeStore;
+                    pokemonEntity.getPokemon().getStoreCoordinates().set(new StoreCoordinates<>(fakePartyStore, new FakeStorePosition()));
+                    pokemonEntity.getBusyLocks().add("Cloned_Pokemon"); // Busy lock prevents others from interacting with cloned pokemon
+                }
+
+
             }
         }
     }
