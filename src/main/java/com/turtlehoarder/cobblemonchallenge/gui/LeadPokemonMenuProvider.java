@@ -96,7 +96,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                 pokemonItem.setHoverName(Component.literal(ChatFormatting.RED + String.format("%s's %s (lvl%d)", rival.getDisplayName().getString(), pokemon.getDisplayName().getString(), request.level())));
                 leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
             } else {
-                ItemStack pokemonItem = new ItemStack(CobblemonItems.POKE_BALL.get());
+                ItemStack pokemonItem = new ItemStack(CobblemonItems.POKE_BALL.asItem());
                 pokemonItem.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL); // Hide catch rate modifier
                 pokemonItem.setHoverName(Component.literal(ChatFormatting.RED + String.format("%s's Pokemon", rival.getDisplayName().getString())));
                 leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
@@ -160,7 +160,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                         setGlassDisplayName(itemFiller, timeLeft);
                     }
                     if (itemSlot == 22) {
-                        itemFiller = new ItemStack(CobblemonItems.POKE_BALL.get());
+                        itemFiller = new ItemStack(CobblemonItems.POKE_BALL.asItem());
                         itemFiller.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL); // Hide catch rate modifier
                         itemFiller.setHoverName(Component.literal(ChatFormatting.RED + String.format("%s has selected their lead", rival.getDisplayName().getString())));
                     }

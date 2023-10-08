@@ -61,7 +61,7 @@ public class ChallengeEventHandler {
                     ServerPlayer player = participantIterator.next();
                     /* Bug fix for stuck cobblemon input after battles. Since clients are switching to cloned pokemon UUIDs, their selected slot will be -1. By sending the party reference packet to them, we can reset this position */
                     UUID partyuuid = Cobblemon.INSTANCE.getStorage().getParty(player).getUuid();
-                    CobblemonNetwork.INSTANCE.sendToPlayer(player, new SetPartyReferencePacket(partyuuid));
+                    CobblemonNetwork.INSTANCE.sendPacketToPlayer(player, new SetPartyReferencePacket(partyuuid));
                     for (BattleActor actor : battleVictoryEvent.getWinners()) {
                         actor.getPlayerUUIDs().forEach(winnerUUID -> {
                             if (player.getUUID().equals(winnerUUID)) {
