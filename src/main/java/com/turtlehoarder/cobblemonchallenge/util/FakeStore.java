@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class FakeStore extends PlayerPartyStore {
     public FakeStore(@NotNull UUID uuid) {
-        super(uuid);
+        super(uuid, uuid);
     }
 
     @Override

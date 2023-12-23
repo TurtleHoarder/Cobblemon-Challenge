@@ -41,9 +41,9 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // For 1.20.1, we'll reference the snapshot build. THIS MUST CHANGE LATER AFTER OFFICIAL RELEASE:
-    modImplementation 'com.cobblemon:forge:1.4.0+1.20.1-20231008.002315-165'
+    modImplementation 'com.cobblemon:fabric:1.4.1+1.20.1'
     //modCompileOnlyApi"curse.maven:cobblemon-687131:4468321"
-    modRuntimeOnly"curse.maven:cobblemon-687131:4468330"
+    //modRuntimeOnly"curse.maven:cobblemon-687131:4468330"
 
     modImplementation"curse.maven:architectury-419699:4663010"
 }
