@@ -100,6 +100,11 @@ repositories {
             includeGroup 'curse.maven'
         }
     }
+
+    maven {
+        url "https://maven.tterrag.com/"
+    }
+
     maven {
         url = "https://maven.impactdev.net/repository/development"
         content {
@@ -113,7 +118,9 @@ dependencies {
     minecraft group: 'net.minecraftforge', name: 'forge', version: "${minecraft_version}-${forge_version}"
     implementation fg.deobf("curse.maven:architectury-419699:${architectury_file}")
     implementation fg.deobf("curse.maven:kotlin-351264:${kotlin_file}")
-    implementation fg.deobf('com.cobblemon:forge:1.4.0+1.20.1-20231008.002315-165')
+   // implementation fg.deobf('curse.maven:cobblemon-687131:4797451')
+    implementation fg.deobf('com.cobblemon:forge:1.4.1+1.20.1')
+    implementation fg.deobf("com.jozufozu.flywheel:flywheel-forge-1.20.1:0.6.10-7")
 
 }
 

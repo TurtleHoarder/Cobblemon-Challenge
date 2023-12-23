@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
+import kotlin.Unit;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.ArrayList;
@@ -36,8 +37,10 @@ public class ChallengeBattleBuilder {
         PlayerBattleActor player2Actor = new PlayerBattleActor(player2.getUUID(), player2Team);
         BattleRegistry br = Cobblemon.INSTANCE.getBattleRegistry();
 
-        PokemonBattle battle = br.startBattle(battleFormat, new BattleSide(player1Actor), new BattleSide(player2Actor));
-        challengeBattles.add(battle); // Keep a list of challenge battles to keep track of cloned pokemon
+        br.startBattle(battleFormat, new BattleSide(player1Actor), new BattleSide(player2Actor), false).ifSuccessful(battle -> {
+            challengeBattles.add(battle); // Keep a list of challenge battles to keep track of cloned pokemon
+            return Unit.INSTANCE;
+        });
     }
 
     // Method to create our own clones according to the format
