@@ -7,6 +7,7 @@ import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.util.LocalizationUtilsKt;
+import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeFormat;
 import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
@@ -111,7 +112,7 @@ public class ChallengeUtil {
     // Roundabout, but reliable way of getting the associated owner UUID of the cloned pokemon sent out in a challenge
     public static UUID getOwnerUuidOfClonedPokemon(PokemonBattle battle, PokemonEntity pokemonEntity) {
         for (ActiveBattlePokemon abp : battle.getActivePokemon()) {
-            if (pokemonEntity.getPokemon().getUuid().equals(abp.getBattlePokemon().getEffectedPokemon().getUuid())) {
+            if (abp.getBattlePokemon() != null && pokemonEntity.getPokemon().getUuid().equals(abp.getBattlePokemon().getEffectedPokemon().getUuid())) {
                 return abp.getBattlePokemon().getOriginalPokemon().getOwnerUUID();
             }
         }
