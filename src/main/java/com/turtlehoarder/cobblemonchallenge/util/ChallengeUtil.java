@@ -112,7 +112,7 @@ public class ChallengeUtil {
     // Roundabout, but reliable way of getting the associated owner UUID of the cloned pokemon sent out in a challenge
     public static UUID getOwnerUuidOfClonedPokemon(PokemonBattle battle, PokemonEntity pokemonEntity) {
         for (ActiveBattlePokemon abp : battle.getActivePokemon()) {
-            if (pokemonEntity.getPokemon().getUuid().equals(abp.getBattlePokemon().getEffectedPokemon().getUuid())) {
+            if (abp.getBattlePokemon() != null && pokemonEntity.getPokemon().getUuid().equals(abp.getBattlePokemon().getEffectedPokemon().getUuid())) {
                 return abp.getBattlePokemon().getOriginalPokemon().getOwnerUUID();
             }
         }
