@@ -10,6 +10,7 @@ import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
+import com.cobblemon.mod.common.util.PlayerExtensionsKt;
 import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
 import kotlin.Unit;
@@ -37,8 +38,19 @@ public class ChallengeBattleBuilder {
         PlayerBattleActor player2Actor = new PlayerBattleActor(player2.getUUID(), player2Team);
         BattleRegistry br = Cobblemon.INSTANCE.getBattleRegistry();
 
+
+
         br.startBattle(battleFormat, new BattleSide(player1Actor), new BattleSide(player2Actor), false).ifSuccessful(battle -> {
             challengeBattles.add(battle); // Keep a list of challenge battles to keep track of cloned pokemon
+
+            // Set appropriate PVP battle themes for the combat since it doesn't start automatically with this method
+            try {
+                player1Actor.setBattleTheme(PlayerExtensionsKt.getBattleTheme(player2));
+                player2Actor.setBattleTheme(PlayerExtensionsKt.getBattleTheme(player1));
+            } catch (Exception exc) {
+                CobblemonChallenge.LOGGER.error("Error when attempting to start Battle Theme: " + exc.getMessage());
+                exc.printStackTrace();
+            }
             return Unit.INSTANCE;
         });
     }
