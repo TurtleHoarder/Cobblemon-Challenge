@@ -33,8 +33,6 @@ public class ChallengeCommand {
     private static final float MAX_DISTANCE = ChallengeConfig.MAX_CHALLENGE_DISTANCE;
     private static final boolean USE_DISTANCE_RESTRICTION = ChallengeConfig.CHALLENGE_DISTANCE_RESTRICTION;
     private static final int DEFAULT_LEVEL = ChallengeConfig.DEFAULT_CHALLENGE_LEVEL;
-    private static final int DEFAULT_MIN_LEVEL = ChallengeConfig.DEFAULT_MIN_LEVEL;
-    private static final int DEFAULT_MAX_LEVEL = ChallengeConfig.DEFAULT_MAX_LEVEL;
     private static final int DEFAULT_HANDICAP = ChallengeConfig.DEFAULT_HANDICAP;
     private static final int CHALLENGE_COOLDOWN = ChallengeConfig.CHALLENGE_COOLDOWN_MILLIS;
     public static HashMap<String, ChallengeRequest> CHALLENGE_REQUESTS = new HashMap<>();
