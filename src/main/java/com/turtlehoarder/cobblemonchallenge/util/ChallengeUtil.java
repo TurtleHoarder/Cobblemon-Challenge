@@ -127,4 +127,24 @@ public class ChallengeUtil {
         }
         return pokemon;
     }
+
+    // method for clamping Battle Pokemon to level range, between 1-100, & applying handicap
+    // > handicap applied AFTER level clamp to range
+    //    > a players level may be outside this range after the handicap is applied
+    //    > the only restriction after range & handicap, will be a hard clamp to (1,100) 
+    public static int getBattlePokemonAdjustedLevel(int actualLevel, int minLevel, int maxLevel, int handicap) {
+        int adjustedLevel = actualLevel;
+        if (actualLevel < minLevel) {
+            adjustedLevel = minLevel;
+        } else if (actualLevel > maxLevel) {
+            adjustedLevel = maxLevel;
+        }
+        adjustedLevel = adjustedLevel + handicap;
+        if (adjustedLevel < 1) {
+            adjustedLevel = 1;
+        } else if (adjustedLevel > 100) {
+            adjustedLevel = 100;
+        }
+        return adjustedLevel;
+    }
 }
