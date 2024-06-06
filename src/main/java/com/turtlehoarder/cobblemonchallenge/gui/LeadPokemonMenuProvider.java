@@ -65,9 +65,10 @@ public class LeadPokemonMenuProvider implements MenuProvider {
         return leadPokemonMenu;
     }
 
-    // TODO: ( ?? !! )
-    // Is this relative to each player, or is P1 & P2 consistant?
-    // > I don't think it is relative, but if so I need to differentiate which player has handicap    
+    // TODO: ( !! )
+    // > this is relative, so p1 & p2 are not p1 & p2 inside of request. 
+    // > just visual here, but if safeCopyOf(pokemon) is pulled for actual battle, the handicap is not reflected.
+    // >> revisit after method applying handicap is found
     private void setupPokemonRepresentation(LeadPokemonMenu leadPokemonMenu) {
         p1Party = Cobblemon.INSTANCE.getStorage().getParty(selector);
         PartyStore p2Party = Cobblemon.INSTANCE.getStorage().getParty(rival);
@@ -79,10 +80,12 @@ public class LeadPokemonMenuProvider implements MenuProvider {
             if (pokemon == null) // Skip any empty slots in the pokemon team
                 continue;
             BattlePokemon copy = BattlePokemon.Companion.safeCopyOf(pokemon);
-            int levelP1 = request.level() + request.handicapP1();
-            pokemon = ChallengeUtil.applyFormatTransformations(ChallengeFormat.STANDARD_6V6, copy, levelP1).getEffectedPokemon(); // Apply battle transformations to each pokemon
+            pokemon = ChallengeUtil.applyFormatTransformations(ChallengeFormat.STANDARD_6V6, copy, request.level()).getEffectedPokemon(); // Apply battle transformations to each pokemon
+            // int levelP1 = request.level() + request.handicapP1();
+            // pokemon = ChallengeUtil.applyFormatTransformations(ChallengeFormat.STANDARD_6V6, copy, levelP1).getEffectedPokemon(); // Apply battle transformations to each pokemon
             ItemStack pokemonItem = PokemonItem.from(pokemon, 1);
-            pokemonItem.setHoverName(Component.literal(ChatFormatting.AQUA + String.format("%s (lvl%d)", pokemon.getDisplayName().getString(), levelP1)));
+            pokemonItem.setHoverName(Component.literal(ChatFormatting.AQUA + String.format("%s (lvl%d)", pokemon.getDisplayName().getString(), request.level())));
+            //pokemonItem.setHoverName(Component.literal(ChatFormatting.AQUA + String.format("%s (lvl%d)", pokemon.getDisplayName().getString(), levelP1)));
             ListTag pokemonLoreTag = ChallengeUtil.generateLoreTagForPokemon(pokemon);
             pokemonItem.getOrCreateTagElement("display").put("Lore", pokemonLoreTag);
             leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
@@ -97,8 +100,9 @@ public class LeadPokemonMenuProvider implements MenuProvider {
             }           
             if (selectionSession.teamPreviewOn()) {
                 ItemStack pokemonItem = PokemonItem.from(pokemon, 1);
-                int levelP2 = request.level() + request.handicapP2();
-                pokemonItem.setHoverName(Component.literal(ChatFormatting.RED + String.format("%s's %s (lvl%d)", rival.getDisplayName().getString(), pokemon.getDisplayName().getString(), levelP2)));
+                pokemonItem.setHoverName(Component.literal(ChatFormatting.RED + String.format("%s's %s (lvl%d)", rival.getDisplayName().getString(), pokemon.getDisplayName().getString(), request.level())));
+                //int levelP2 = request.level() + request.handicapP2();
+                //pokemonItem.setHoverName(Component.literal(ChatFormatting.RED + String.format("%s's %s (lvl%d)", rival.getDisplayName().getString(), pokemon.getDisplayName().getString(), levelP2)));
                 leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
             } else {
                 ItemStack pokemonItem = new ItemStack(CobblemonItems.POKE_BALL.asItem());
