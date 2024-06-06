@@ -28,15 +28,17 @@ import java.util.UUID;
 
 public class ChallengeCommand {
 
-    public record ChallengeRequest(String id, ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, boolean preview, long createdTime) {}
+    public record ChallengeRequest(String id, ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, int handicapP1, int handicapP2, boolean preview, long createdTime) {}
     public record LeadPokemonSelection(LeadPokemonSelectionSession selectionWrapper, long createdTime) {}
     private static final float MAX_DISTANCE = ChallengeConfig.MAX_CHALLENGE_DISTANCE;
     private static final boolean USE_DISTANCE_RESTRICTION = ChallengeConfig.CHALLENGE_DISTANCE_RESTRICTION;
     private static final int DEFAULT_LEVEL = ChallengeConfig.DEFAULT_CHALLENGE_LEVEL;
+    private static final int DEFAULT_HANDICAP = ChallengeConfig.DEFAULT_HANDICAP;
     private static final int CHALLENGE_COOLDOWN = ChallengeConfig.CHALLENGE_COOLDOWN_MILLIS;
     public static HashMap<String, ChallengeRequest> CHALLENGE_REQUESTS = new HashMap<>();
     public static final HashMap<UUID, LeadPokemonSelection> ACTIVE_SELECTIONS = new HashMap<>();
     private static final HashMap<UUID, Long> LAST_SENT_CHALLENGE = new HashMap<>();
+    
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         // Basic challenge command that initiates a challenge with the default challenge level
         LiteralArgumentBuilder<CommandSourceStack> baseCommandBuilder = Commands.literal("challenge")
@@ -73,13 +75,81 @@ public class ChallengeCommand {
                         )
                 );
 
-        // Challenge command that initiates a challenge with a given level
+        // Challenge command that initiates a challenge with a given level & handicap
         LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOptionNoPreviewBefore = Commands.literal("challenge")
                 .then(Commands.argument("player", EntityArgument.player())
                         .then(Commands.literal("nopreview")
                                 .then(Commands.literal("level")
                                         .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
                                                 .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), false)
+                                                )
+                                        )
+                                )
+                        )
+                );
+
+        // Basic challenge command that initiates a challenge with the default challenge level & handicap
+        LiteralArgumentBuilder<CommandSourceStack> baseCommandBuilderHandicap = Commands.literal("challenge")
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.literal("handicapP1")
+                                .then(Commands.literal("handicapP2")
+                                        .executes(c -> challengePlayer(c, DEFAULT_LEVEL, true))
+                                )
+                        )
+                );
+
+        // Basic challenge command that initiates a challenge with the default challenge level & handicap
+        LiteralArgumentBuilder<CommandSourceStack> baseCommandBuilderNoPreviewHandicap = Commands.literal("challenge")
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.literal("handicapP1")
+                                .then(Commands.literal("handicapP2")
+                                        .then(Commands.literal("nopreview")
+                                                .executes(c -> challengePlayer(c, DEFAULT_LEVEL, false))
+                                        )
+                                )
+                        )
+                );
+
+        // Challenge command that initiates a challenge with a given level & handicap
+        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOptionHandicap = Commands.literal("challenge")
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.literal("level")
+                                .then(Commands.literal("handicapP1")
+                                        .then(Commands.literal("handicapP2")
+                                                .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
+                                                        .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), false))
+                                                )
+                                        )
+                                )
+                        )
+                );
+        
+        // Challenge command that initiates a challenge with a given level & handicap
+        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOptionNoPreviewHandicap = Commands.literal("challenge")
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.literal("level")
+                                .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
+                                        .then(Commands.literal("handicapP1")
+                                                .then(Commands.literal("handicapP2")
+                                                        .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
+                                                                .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), false))
+                                                        )
+                                                )
+                                        )
+                                )
+                        )
+                );
+        
+        // Challenge command that initiates a challenge with a given level & handicap
+        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOptionNoPreviewBeforeHandicap = Commands.literal("challenge")
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.literal("nopreview")
+                                .then(Commands.literal("level")
+                                        .then(Commands.literal("handicapP1")
+                                                .then(Commands.literal("handicapP2")
+                                                        .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
+                                                                .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), false))
+                                                        )
                                                 )
                                         )
                                 )
@@ -101,7 +171,15 @@ public class ChallengeCommand {
         dispatcher.register(commandBuilderWithLevelOptionNoPreview);
         dispatcher.register(baseCommandBuilderNoPreview);
         dispatcher.register(commandBuilderWithLevelOptionNoPreviewBefore);
-        dispatcher.register(baseCommandBuilder);
+         dispatcher.register(baseCommandBuilder);
+        
+        // Handicap versions
+        dispatcher.register(commandBuilderWithLevelOptionHandicap);
+        // Register nopreview section
+        dispatcher.register(commandBuilderWithLevelOptionNoPreviewHandicap);
+        dispatcher.register(baseCommandBuilderNoPreviewHandicap);
+        dispatcher.register(commandBuilderWithLevelOptionNoPreviewBeforeHandicap);
+        dispatcher.register(baseCommandBuilderHandicap);
 
     }
 
