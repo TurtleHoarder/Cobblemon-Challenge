@@ -72,11 +72,11 @@ public class LeadPokemonMenuProvider implements MenuProvider {
         setupGlassFiller(leadPokemonMenu);
         int p1Handicap;
         if (this.selector == request.challengerPlayer()){
-            p1Handicap = request.level() + request.handicapP1;
+            p1Handicap = request.level() + request.handicapP1();
         } else {
-            p1Handicap = request.level() + request.handicapP2;
+            p1Handicap = request.level() + request.handicapP2();
         }
-        int levelP1 = request.level() + request.handicapP1();
+        int levelP1 = request.level() + p1Handicap;
         
         for (int x = 0; x < p1Party.size(); x ++) {
             int itemSlot = x * 9; // Lefthand column of the menu
@@ -96,9 +96,9 @@ public class LeadPokemonMenuProvider implements MenuProvider {
         // Set enemy side:
         int p2Handicap;
         if (this.selector == request.challengedPlayer()){
-            p2Handicap = request.level() + request.handicapP2;
+            p2Handicap = request.level() + request.handicapP2();
         } else {
-            p2Handicap = request.level() + request.handicapP1;
+            p2Handicap = request.level() + request.handicapP1();
         }
         int levelP2 = request.level() + p2Handicap;
         
