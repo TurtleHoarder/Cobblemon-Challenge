@@ -57,14 +57,14 @@ public class ChallengeBattleBuilder {
             BattlePokemon leadBattlePokemon = BattlePokemon.Companion.safeCopyOf(leadPokemon);
 
             // 
-            int adjustedLevel = ChallengeUtil.getBattlePokemonAdjustedLevel(leadPokemon.level, minLevel, maxLevel, handicap);
+            int adjustedLevel = ChallengeUtil.getBattlePokemonAdjustedLevel(leadPokemon.level(), minLevel, maxLevel, handicap);
             
             battlePokemonList.add(ChallengeUtil.applyFormatTransformations(format,leadBattlePokemon, adjustedLevel));
             for (int slot = 0; slot < party.size(); slot++) {
                 if (slot != leadSlot) {
                     Pokemon pokemon = party.get(slot);
                     if (pokemon != null) {
-                        adjustedLevel = ChallengeUtil.getBattlePokemonAdjustedLevel(pokemon.level, minLevel, maxLevel, handicap);
+                        adjustedLevel = ChallengeUtil.getBattlePokemonAdjustedLevel(pokemon.level(), minLevel, maxLevel, handicap);
                         BattlePokemon battlePokemon = ChallengeUtil.applyFormatTransformations(format, BattlePokemon.Companion.safeCopyOf(pokemon), adjustedLevel);
                         battlePokemonList.add(battlePokemon);
                     }
