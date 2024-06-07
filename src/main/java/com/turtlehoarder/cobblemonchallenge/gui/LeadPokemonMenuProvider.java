@@ -85,7 +85,8 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                 continue;
             BattlePokemon copy = BattlePokemon.Companion.safeCopyOf(pokemon);
             // pokemon.level is a var/float => may need to floor to int
-            int adjustedLevelP1 = ChallengeUtil.getBattlePokemonAdjustedLevel(pokemon.createPokemonProperties(PokemonPropertyExtractor.LEVEL).LEVEL, request.minLevel(), request.maxLevel(), handicapP1);
+            var properties = pokemon.createPokemonProperties(PokemonPropertyExtractor.LEVEL);
+            int adjustedLevelP1 = ChallengeUtil.getBattlePokemonAdjustedLevel(properties.level(), request.minLevel(), request.maxLevel(), handicapP1);
             pokemon = ChallengeUtil.applyFormatTransformations(ChallengeFormat.STANDARD_6V6, copy, adjustedLevelP1).getEffectedPokemon(); // Apply battle transformations to each pokemon
             ItemStack pokemonItem = PokemonItem.from(pokemon, 1);
             pokemonItem.setHoverName(Component.literal(ChatFormatting.AQUA + String.format("%s (lvl%d)", pokemon.getDisplayName().getString(), adjustedLevelP1)));
@@ -111,7 +112,8 @@ public class LeadPokemonMenuProvider implements MenuProvider {
             if (selectionSession.teamPreviewOn()) {
                 ItemStack pokemonItem = PokemonItem.from(pokemon, 1);
                 // pokemon.level is a var/float => may need to floor to int
-                int adjustedLevelP2 = ChallengeUtil.getBattlePokemonAdjustedLevel(pokemon.createPokemonProperties(PokemonPropertyExtractor.LEVEL).LEVEL, request.minLevel(), request.maxLevel(), handicapP2);
+                var properties = pokemon.createPokemonProperties(PokemonPropertyExtractor.LEVEL);
+                int adjustedLevelP2 = ChallengeUtil.getBattlePokemonAdjustedLevel(properties.level(), request.minLevel(), request.maxLevel(), handicapP2);
                 pokemonItem.setHoverName(Component.literal(ChatFormatting.RED + String.format("%s's %s (lvl%d)", rival.getDisplayName().getString(), pokemon.getDisplayName().getString(), adjustedLevelP2)));
                 leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
             } else {
