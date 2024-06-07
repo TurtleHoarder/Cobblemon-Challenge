@@ -2,7 +2,7 @@ package com.turtlehoarder.cobblemonchallenge.gui;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.CobblemonItems;
-import com.cobblemon.mod.common.api.pokemon.PokemonPropertyExtractor
+import com.cobblemon.mod.common.api.pokemon.PokemonPropertyExtractor;
 import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.item.PokemonItem;
