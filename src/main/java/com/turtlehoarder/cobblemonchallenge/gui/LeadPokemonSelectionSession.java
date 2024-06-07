@@ -61,7 +61,8 @@ public class LeadPokemonSelectionSession {
     }
 
     private void beginBattle() {
-        int level = originRequest.level();
+        int minLevel = originRequest.minLevel();
+        int maxLevel = originRequest.maxLevel();
         int handicapP1 = originRequest.handicapP1();
         int handicapP2 = originRequest.handicapP2();
         SESSIONS_TO_CANCEL.add(this);
@@ -69,7 +70,7 @@ public class LeadPokemonSelectionSession {
         challengedMenuProvider.forceCloseMenu();
         ChallengeBattleBuilder challengeBuilder = new ChallengeBattleBuilder();
         try {
-            challengeBuilder.lvlxpvp(originRequest.challengerPlayer(), originRequest.challengedPlayer(), BattleFormat.Companion.getGEN_9_SINGLES(), level, handicapP1, handicapP2, challengerMenuProvider.selectedSlots, challengedMenuProvider.selectedSlots);
+            challengeBuilder.lvlxpvp(originRequest.challengerPlayer(), originRequest.challengedPlayer(), BattleFormat.Companion.getGEN_9_SINGLES(), minLevel, maxLevel, handicapP1, handicapP2, challengerMenuProvider.selectedSlots, challengedMenuProvider.selectedSlots);
         } catch (ChallengeBuilderException e) {
             e.printStackTrace();
         }
