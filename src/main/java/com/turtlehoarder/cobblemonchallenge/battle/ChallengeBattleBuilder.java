@@ -2,6 +2,7 @@ package com.turtlehoarder.cobblemonchallenge.battle;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
+//import com.cobblemon.mod.common.api.pokemon.PokemonPropertyExtractor;
 import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.battles.BattleFormat;
 import com.cobblemon.mod.common.battles.BattleRegistry;
@@ -56,17 +57,15 @@ public class ChallengeBattleBuilder {
             }            
             BattlePokemon leadBattlePokemon = BattlePokemon.Companion.safeCopyOf(leadPokemon);
 
-            // 
-            var properties = leadPokemon.createPokemonProperties(PokemonPropertyExtractor.LEVEL);
-            int adjustedLevel = ChallengeUtil.getBattlePokemonAdjustedLevel(properties.level, minLevel, maxLevel, handicap);
+            // var properties = leadPokemon.createPokemonProperties(PokemonPropertyExtractor.LEVEL);
+            int adjustedLevel = ChallengeUtil.getBattlePokemonAdjustedLevel(leadPokemon.getLevel(), minLevel, maxLevel, handicap);
             
             battlePokemonList.add(ChallengeUtil.applyFormatTransformations(format,leadBattlePokemon, adjustedLevel));
             for (int slot = 0; slot < party.size(); slot++) {
                 if (slot != leadSlot) {
                     Pokemon pokemon = party.get(slot);
                     if (pokemon != null) {
-                        properties = pokemon.createPokemonProperties(PokemonPropertyExtractor.LEVEL);
-                        adjustedLevel = ChallengeUtil.getBattlePokemonAdjustedLevel(properties.level, minLevel, maxLevel, handicap);
+                        adjustedLevel = ChallengeUtil.getBattlePokemonAdjustedLevel(pokemon.getLevel(), minLevel, maxLevel, handicap);
                         BattlePokemon battlePokemon = ChallengeUtil.applyFormatTransformations(format, BattlePokemon.Companion.safeCopyOf(pokemon), adjustedLevel);
                         battlePokemonList.add(battlePokemon);
                     }
