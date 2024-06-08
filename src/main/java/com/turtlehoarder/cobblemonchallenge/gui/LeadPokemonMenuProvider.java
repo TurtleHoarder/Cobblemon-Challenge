@@ -2,12 +2,10 @@ package com.turtlehoarder.cobblemonchallenge.gui;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.CobblemonItems;
-import com.cobblemon.mod.common.api.pokemon.PokemonPropertyExtractor;
 import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.item.PokemonItem;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeFormat;
 import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
@@ -71,12 +69,8 @@ public class LeadPokemonMenuProvider implements MenuProvider {
         PartyStore p2Party = Cobblemon.INSTANCE.getStorage().getParty(rival);
         
         setupGlassFiller(leadPokemonMenu);
-        int handicapP1;
-        if (this.selector == request.challengerPlayer()){
-            handicapP1 = request.handicapP1();
-        } else {
-            handicapP1 = request.handicapP2();
-        }
+        int handicapP1 = (this.selector == request.challengerPlayer()) ? request.handicapP1() : request.handicapP2();
+        int handicapP2 = (this.selector == request.challengerPlayer()) ? request.handicapP2() : request.handicapP1();
         
         for (int x = 0; x < p1Party.size(); x ++) {
             int itemSlot = x * 9; // Lefthand column of the menu
@@ -94,13 +88,6 @@ public class LeadPokemonMenuProvider implements MenuProvider {
         }
 
         // Set enemy side:
-        int handicapP2;
-        if (this.selector == request.challengedPlayer()){
-            handicapP2 = request.handicapP2();
-        } else {
-            handicapP2 = request.handicapP1();
-        }
-        
         for (int x= 0; x < p2Party.size(); x++) {
             int itemSlot = (x * 9) + 8; // Righthand column of the menu
             Pokemon pokemon = p2Party.get(x);
