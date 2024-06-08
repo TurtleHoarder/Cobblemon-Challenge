@@ -75,10 +75,9 @@ public class ChallengeCommand {
                                 .then(Commands.argument("setP1HandicapTo", IntegerArgumentType.integer(-99,99))
                                         .then(Commands.literal("handicapP2")
                                                 .then(Commands.argument("setP2HandicapTo", IntegerArgumentType.integer(-99,99))
-                                                        .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
-                                                                .executes(c -> challengePlayer(c,  DEFAULT_LEVEL, DEFAULT_LEVEL, IntegerArgumentType.getInteger(c, "setP1HandicapTo"), IntegerArgumentType.getInteger(c, "setP2HandicapTo"), true))
-                                                        )
+                                                        .executes(c -> challengePlayer(c,  DEFAULT_LEVEL, DEFAULT_LEVEL, IntegerArgumentType.getInteger(c, "setP1HandicapTo"), IntegerArgumentType.getInteger(c, "setP2HandicapTo"), true))
                                                 )
+
                                         )
                                 )
                         )
