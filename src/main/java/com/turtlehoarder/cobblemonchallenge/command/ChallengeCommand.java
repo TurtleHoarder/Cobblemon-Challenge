@@ -331,17 +331,19 @@ public class ChallengeCommand {
             ChallengeRequest request = ChallengeUtil.createChallengeRequest(challengerPlayer, challengedPlayer, minLevel, maxLevel, handicapP1, handicapP2, preview);
             CHALLENGE_REQUESTS.put(request.id, request);
 
-            String options = "";
-            if (!request.preview()) {
-                options = ChatFormatting.GOLD + " [NoTeamPreview]";
-            }
-            // TODO:
-            // 1. Add Handicap info to notification
-            // 2. add min range to notification
-            MutableComponent notificationComponent = Component.literal(ChatFormatting.YELLOW + String.format("You have been challenged to a " + ChatFormatting.BOLD + "level %d Pokemon battle" + ChatFormatting.RESET + ChatFormatting.YELLOW + " by %s!" + options, maxLevel, challengerPlayer.getDisplayName().getString()));            MutableComponent interactiveComponent = Component.literal("Click to accept or deny: ");
+
+            String levelComponent = (minLevel == maxLevel) ? ChatFormatting.YELLOW + String.format("You have been challenged to a " + ChatFormatting.BOLD + "level %d Pokemon battle", maxLevel) : ChatFormatting.YELLOW + String.format("You have been challenged to a " + ChatFormatting.BOLD + "level %d - %d Pokemon battle", minLevel, maxLevel);
+            String challengerComponent = ChatFormatting.YELLOW + " by %s!" + challengerPlayer.getDisplayName().getString();
+            String challengedComponent = ChatFormatting.YELLOW + " by %s!" + challengedPlayer.getDisplayName().getString();
+            String optionsComponent = request.preview() ? "" : ChatFormatting.GOLD + " [NoTeamPreview]";
+            String handicapComponent = (handicapP1 == 0 && handicapP2 == 0) ? "" : ChatFormatting.YELLOW + "[ " + challengerComponent + " handicap of " + handicapP1 + " ][ " + challengedComponent + " handicap of " + handicapP2 + " ]";
+            MutableComponent notificationComponent = Component.literal(levelComponent + challengerComponent + optionsComponent + handicapComponent);
+
+            MutableComponent interactiveComponent = Component.literal("Click to accept or deny: ");
             interactiveComponent.append(Component.literal(ChatFormatting.GREEN + "Battle!").setStyle(Style.EMPTY.withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/acceptchallenge %s", request.id)))));
             interactiveComponent.append(Component.literal(" or "));
             interactiveComponent.append(Component.literal(ChatFormatting.RED + "Reject").setStyle(Style.EMPTY.withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/rejectchallenge %s", request.id)))));
+
             challengedPlayer.displayClientMessage(notificationComponent, false);
             challengedPlayer.displayClientMessage(interactiveComponent, false);
             challengerPlayer.displayClientMessage(Component.literal(ChatFormatting.YELLOW + String.format("Challenge has been sent to %s", challengedPlayer.getDisplayName().getString())), false);
