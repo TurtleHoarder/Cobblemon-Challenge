@@ -70,15 +70,19 @@ public class LeadPokemonMenuProvider implements MenuProvider {
         PartyStore p2Party = Cobblemon.INSTANCE.getStorage().getParty(rival);
 
         setupGlassFiller(leadPokemonMenu);
+        int handicapP1 = (this.selector == request.challengerPlayer()) ? request.handicapP1() : request.handicapP2();
+        int handicapP2 = (this.selector == request.challengerPlayer()) ? request.handicapP2() : request.handicapP1();
+
         for (int x = 0; x < p1Party.size(); x ++) {
             int itemSlot = x * 9; // Lefthand column of the menu
             Pokemon pokemon = p1Party.get(x);
             if (pokemon == null) // Skip any empty slots in the pokemon team
                 continue;
             BattlePokemon copy = BattlePokemon.Companion.safeCopyOf(pokemon);
-            pokemon = ChallengeUtil.applyFormatTransformations(ChallengeFormat.STANDARD_6V6, copy, request.level()).getEffectedPokemon(); // Apply battle transformations to each pokemon
+            int adjustedLevelP1 = ChallengeUtil.getBattlePokemonAdjustedLevel(pokemon.getLevel(), request.minLevel(), request.maxLevel(), handicapP1);
+            pokemon = ChallengeUtil.applyFormatTransformations(ChallengeFormat.STANDARD_6V6, copy, adjustedLevelP1).getEffectedPokemon(); // Apply battle transformations to each pokemon
             ItemStack pokemonItem = PokemonItem.from(pokemon, 1);
-            pokemonItem.setHoverName(Component.literal(ChatFormatting.AQUA + String.format("%s (lvl%d)", pokemon.getDisplayName().getString(), request.level())));
+            pokemonItem.setHoverName(Component.literal(ChatFormatting.AQUA + String.format("%s (lvl%d)", pokemon.getDisplayName().getString(), adjustedLevelP1)));
             ListTag pokemonLoreTag = ChallengeUtil.generateLoreTagForPokemon(pokemon);
             pokemonItem.getOrCreateTagElement("display").put("Lore", pokemonLoreTag);
             leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
@@ -93,7 +97,8 @@ public class LeadPokemonMenuProvider implements MenuProvider {
             }
             if (selectionSession.teamPreviewOn()) {
                 ItemStack pokemonItem = PokemonItem.from(pokemon, 1);
-                pokemonItem.setHoverName(Component.literal(ChatFormatting.RED + String.format("%s's %s (lvl%d)", rival.getDisplayName().getString(), pokemon.getDisplayName().getString(), request.level())));
+                int adjustedLevelP2 = ChallengeUtil.getBattlePokemonAdjustedLevel(pokemon.getLevel(), request.minLevel(), request.maxLevel(), handicapP2);
+                pokemonItem.setHoverName(Component.literal(ChatFormatting.RED + String.format("%s's %s (lvl%d)", rival.getDisplayName().getString(), pokemon.getDisplayName().getString(), adjustedLevelP2)));
                 leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
             } else {
                 ItemStack pokemonItem = new ItemStack(CobblemonItems.POKE_BALL.asItem());
