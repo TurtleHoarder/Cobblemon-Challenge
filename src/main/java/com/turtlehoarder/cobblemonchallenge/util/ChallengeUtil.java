@@ -59,9 +59,9 @@ public class ChallengeUtil {
         return player.getServer().getPlayerList().getPlayer(player.getUUID()) != null;
     }
 
-    public static ChallengeCommand.ChallengeRequest createChallengeRequest(ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, boolean preview) {
+    public static ChallengeCommand.ChallengeRequest createChallengeRequest(ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int minLevel, int maxLevel, int handicapP1, int handicapP2, boolean preview) {
         String key = UUID.randomUUID().toString().replaceAll("-", "");
-        ChallengeCommand.ChallengeRequest newRequest = new ChallengeCommand.ChallengeRequest(key, challengerPlayer, challengedPlayer, level, preview, System.currentTimeMillis());
+        ChallengeCommand.ChallengeRequest newRequest = new ChallengeCommand.ChallengeRequest(key, challengerPlayer, challengedPlayer, minLevel, maxLevel, handicapP1, handicapP2, preview, System.currentTimeMillis());
         return newRequest;
     }
 
@@ -126,5 +126,14 @@ public class ChallengeUtil {
             pokemon.getEffectedPokemon().heal();
         }
         return pokemon;
+    }
+
+    // Method for clamping Battle Pokemon to level range, between 1-100, & applying handicap
+    //      > the handicap applied AFTER level clamp to range
+    //      > A players level may be outside this range after the handicap is applied
+    //      >  But, the finalized handicap will be a hard clamped to (1,100)
+    public static int getBattlePokemonAdjustedLevel(int actualLevel, int minLevel, int maxLevel, int handicap) {
+        int adjustedLevel = (actualLevel < minLevel) ? minLevel + handicap : Math.min(actualLevel, maxLevel) + handicap;
+        return (adjustedLevel < 1) ? 1 : Math.min(adjustedLevel, 100);
     }
 }
