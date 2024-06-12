@@ -1,4 +1,4 @@
-package com.turtlehoarder.cobblemonchallenge.config;
+package com.turtlehoarder.cobblemonchallenge.fabric.config;
 /*
  * Copyright (c) 2021 magistermaks
  *

@@ -1,4 +1,4 @@
-package com.turtlehoarder.cobblemonchallenge.config;
+package com.turtlehoarder.cobblemonchallenge.fabric.config;
 
 import com.mojang.datafixers.util.Pair;
 

@@ -1,4 +1,4 @@
-package com.turtlehoarder.cobblemonchallenge.battle;
+package com.turtlehoarder.cobblemonchallenge.common.battle;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
@@ -11,7 +11,7 @@ import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
-import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
+import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
 import kotlin.Unit;
 import net.minecraft.server.level.ServerPlayer;
 

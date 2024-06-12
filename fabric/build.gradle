@@ -1,0 +1,4 @@
+architectury {
+    platformSetupLoomIde()
+    fabric()
+}

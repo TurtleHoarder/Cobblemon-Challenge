@@ -1,4 +1,4 @@
-package com.turtlehoarder.cobblemonchallenge.util;
+package com.turtlehoarder.cobblemonchallenge.common.util;
 
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.api.types.ElementalType;
@@ -7,10 +7,9 @@ import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.util.LocalizationUtilsKt;
-import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
-import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
-import com.turtlehoarder.cobblemonchallenge.battle.ChallengeFormat;
-import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
+import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeBattleBuilder;
+import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeFormat;
+import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;

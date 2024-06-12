@@ -1,4 +1,4 @@
-package com.turtlehoarder.cobblemonchallenge.util;
+package com.turtlehoarder.cobblemonchallenge.common.util;
 
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
 import com.cobblemon.mod.common.api.storage.pc.PCStore;

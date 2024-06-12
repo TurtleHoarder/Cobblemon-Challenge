@@ -1,11 +1,11 @@
-package com.turtlehoarder.cobblemonchallenge.gui;
+package com.turtlehoarder.cobblemonchallenge.common.gui;
 
 import com.cobblemon.mod.common.battles.BattleFormat;
 import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
-import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
-import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBuilderException;
-import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
-import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
+import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeBattleBuilder;
+import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeBuilderException;
+import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
+import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;

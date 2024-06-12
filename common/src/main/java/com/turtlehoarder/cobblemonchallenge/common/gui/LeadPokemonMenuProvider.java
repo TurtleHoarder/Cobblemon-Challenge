@@ -1,4 +1,4 @@
-package com.turtlehoarder.cobblemonchallenge.gui;
+package com.turtlehoarder.cobblemonchallenge.common.gui;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.CobblemonItems;
@@ -6,10 +6,9 @@ import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.item.PokemonItem;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
-import com.turtlehoarder.cobblemonchallenge.battle.ChallengeFormat;
-import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
-import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
+import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeFormat;
+import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
+import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;

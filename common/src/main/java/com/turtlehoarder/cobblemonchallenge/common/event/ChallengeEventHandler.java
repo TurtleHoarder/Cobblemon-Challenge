@@ -1,4 +1,4 @@
-package com.turtlehoarder.cobblemonchallenge.event;
+package com.turtlehoarder.cobblemonchallenge.common.event;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.CobblemonNetwork;
@@ -11,13 +11,13 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.net.messages.client.storage.party.SetPartyReferencePacket;
 import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
 
-import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
-import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
-import com.turtlehoarder.cobblemonchallenge.config.ChallengeConfig;
-import com.turtlehoarder.cobblemonchallenge.gui.LeadPokemonSelectionSession;
-import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
-import com.turtlehoarder.cobblemonchallenge.util.FakeStore;
-import com.turtlehoarder.cobblemonchallenge.util.FakeStorePosition;
+import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeBattleBuilder;
+import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
+import com.turtlehoarder.cobblemonchallenge.fabric.config.ChallengeConfig;
+import com.turtlehoarder.cobblemonchallenge.common.gui.LeadPokemonSelectionSession;
+import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
+import com.turtlehoarder.cobblemonchallenge.common.util.FakeStore;
+import com.turtlehoarder.cobblemonchallenge.common.util.FakeStorePosition;
 import kotlin.Unit;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;

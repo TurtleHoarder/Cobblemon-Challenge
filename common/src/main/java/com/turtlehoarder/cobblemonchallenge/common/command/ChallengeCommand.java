@@ -1,17 +1,16 @@
-package com.turtlehoarder.cobblemonchallenge.command;
+package com.turtlehoarder.cobblemonchallenge.common.command;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.battles.BattleRegistry;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.turtlehoarder.cobblemonchallenge.config.ChallengeConfig;
+import com.turtlehoarder.cobblemonchallenge.fabric.config.ChallengeConfig;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.turtlehoarder.cobblemonchallenge.gui.LeadPokemonMenuProvider;
-import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
-import com.turtlehoarder.cobblemonchallenge.gui.LeadPokemonSelectionSession;
+import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
+import com.turtlehoarder.cobblemonchallenge.common.gui.LeadPokemonSelectionSession;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

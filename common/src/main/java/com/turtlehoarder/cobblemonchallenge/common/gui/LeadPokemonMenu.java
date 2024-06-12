@@ -1,4 +1,4 @@
-package com.turtlehoarder.cobblemonchallenge.gui;
+package com.turtlehoarder.cobblemonchallenge.common.gui;
 
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
