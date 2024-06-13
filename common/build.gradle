@@ -1,10 +1,13 @@
 plugins {
+    id "dev.architectury.loom"
     id 'org.jetbrains.kotlin.jvm' version "1.7.10"
 }
 
 architectury {
     common("forge", "fabric")
 }
+
+loom { silentMojangMappingsLicense() }
 
 repositories {
     maven {
@@ -22,6 +25,9 @@ repositories {
 }
 
 dependencies {
+    minecraft("com.mojang:minecraft:${rootProject.minecraft_version}");
+    // The following line declares the mojmap mappings, you may use other mappings as well
+    mappings(loom.officialMojangMappings())
     modImplementation("com.cobblemon:mod:${rootProject.cobblemon_version}")
     modImplementation"curse.maven:architectury-419699:4663010"
 }

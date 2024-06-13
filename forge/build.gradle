@@ -1,3 +1,9 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "1.7.10"
+    id("dev.architectury.loom")
+    id("architectury-plugin")
+}
+
 architectury  {
     platformSetupLoomIde()
     forge()
@@ -22,9 +28,21 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    common
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentFabric.extendsFrom common
+}
+
 dependencies {
     forge("net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}")
+    mappings loom.layered() {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:${mappings_channel}-${mappings_version}@zip")
+    }
     compileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+    common(project(path: ":common", configuration: "namedElements")) { transitive false }
 //	modImplementation "com.github.glitchfiend:TerraBlender-forge:${rootProject.minecraft_version}-${rootProject.terrablender_version}"
   //  common(project(path: ":common", configuration: "namedElements")) { transitive false }
  //   shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive false }
@@ -63,5 +81,3 @@ sourcesJar {
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
 }
-
-System.out.println("Reached Forge!");

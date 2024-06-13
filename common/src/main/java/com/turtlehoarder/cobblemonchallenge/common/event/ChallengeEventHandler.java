@@ -16,6 +16,7 @@ import com.turtlehoarder.cobblemonchallenge.common.gui.LeadPokemonSelectionSessi
 import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
 import com.turtlehoarder.cobblemonchallenge.common.util.FakeStore;
 import com.turtlehoarder.cobblemonchallenge.common.util.FakeStorePosition;
+import dev.architectury.event.EventResult;
 import dev.architectury.event.events.common.EntityEvent;
 import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
@@ -32,23 +33,19 @@ import java.util.*;
 public class ChallengeEventHandler {
 
     public static void registerEvents() {
+
+        // Register Cobblemon-Related Events
         registerPostVictoryEvent();
         registerChallengeLootPrevention();
         registerCobblemonSavePrevention();
 
-
-        ServerEntityEvents.ENTITY_LOAD.register((entity, server) -> {
+        // Use Architectury API to abstract event calls away from Forge/Fabric
+        EntityEvent.ADD.register((entity, server) -> {
             checkSpawn(entity);
+            return EventResult.pass();
         });
-
-        PlayerEvent.PLAYER_QUIT.register((player) -> {
-            onPlayerLoggedOut(player);
-        });
-
-        LifecycleEvent.SERVER_STOPPING.register((server) -> {
-            onServerShutdown();
-        });
-
+        PlayerEvent.PLAYER_QUIT.register(ChallengeEventHandler::onPlayerLoggedOut);
+        LifecycleEvent.SERVER_STOPPING.register(ChallengeEventHandler::onServerShutdown);
         TickEvent.SERVER_POST.register(ChallengeEventHandler::onServerTick);
 
     }
@@ -183,7 +180,7 @@ public class ChallengeEventHandler {
         }
     }
 
-    public static void onServerShutdown() {
+    public static void onServerShutdown(MinecraftServer server) {
         CobblemonChallenge.LOGGER.debug("Performing Server Shutdown tasks for Cobblemon Challenge");
         if (!ChallengeBattleBuilder.clonedPokemonList.isEmpty()) {
             CobblemonChallenge.LOGGER.debug(String.format("Cloned pokemon (%d) from challenges detected. Removing all before server shuts down", ChallengeBattleBuilder.clonedPokemonList.size()));

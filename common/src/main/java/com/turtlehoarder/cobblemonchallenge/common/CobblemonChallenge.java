@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 public class CobblemonChallenge {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("cobblemonchallenge");
+    public static final String MODID = "cobblemonchallenge";
 
     public static Boolean CHALLENGE_DISTANCE_RESTRICTION;
     public static int MAX_CHALLENGE_DISTANCE;
@@ -21,7 +22,6 @@ public class CobblemonChallenge {
     private static final String DEFAULT_HANDICAP_CONFIG_NAME = "defaultHandicap";
     private static final String CHALLENGE_EXPIRATION_TIME_CONFIG_NAME = "challengeExpirationTime";
     private static final String CHALLENGE_COOLDOWN_CONFIG_NAME = "challengeCooldownTime";
-
     private CobblemonChallengeCommonInterface implementation;
     public CobblemonChallenge() {
 
@@ -35,6 +35,9 @@ public class CobblemonChallenge {
         DEFAULT_HANDICAP = implementation.getIntConfig(DEFAULT_HANDICAP_CONFIG_NAME);
         REQUEST_EXPIRATION_MILLIS = implementation.getIntConfig(CHALLENGE_EXPIRATION_TIME_CONFIG_NAME);
         CHALLENGE_COOLDOWN_MILLIS = implementation.getIntConfig(CHALLENGE_COOLDOWN_CONFIG_NAME);
+
+        implementation.registerCommands();
+        implementation.registerEvents();
     }
 
 

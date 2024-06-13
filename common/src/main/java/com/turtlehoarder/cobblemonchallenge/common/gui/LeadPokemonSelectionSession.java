@@ -1,7 +1,7 @@
 package com.turtlehoarder.cobblemonchallenge.common.gui;
 
 import com.cobblemon.mod.common.battles.BattleFormat;
-import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
+import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeBuilderException;
 import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;

@@ -18,7 +18,7 @@ public class ChallengeConfig {
         CobblemonChallenge.LOGGER.info("Loading Challenge Configs");
         configs = new ChallengeConfigProvider();
         createConfigs();
-        CONFIG = SimpleConfig.of(CobblemonChallengeFabric.MODID + "-config").provider(configs).request();
+        CONFIG = SimpleConfig.of(CobblemonChallenge.MODID + "-config").provider(configs).request();
         assignConfigs();
     }
     private static void createConfigs() {

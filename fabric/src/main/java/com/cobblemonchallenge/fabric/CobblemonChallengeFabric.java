@@ -10,13 +10,31 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 public class CobblemonChallengeFabric extends CobblemonChallengeCommonInterface implements ModInitializer {
 
-    public static String MODID = "cobblemonchallenge";
+    public static String MODID = CobblemonChallenge.MODID;
     @Override
     public void onInitialize() {
+        ChallengeConfig.registerConfigs();
         CobblemonChallenge challenge = new CobblemonChallenge();
         challenge.initializeChallenge(this);
-        ChallengeConfig.registerConfigs();
+    }
+
+    @Override
+    public int getIntConfig(String configName) {
+        return Integer.parseInt(ChallengeConfig.CONFIG.get(configName));
+    }
+
+    @Override
+    public boolean getBooleanConfig(String configName) {
+        return Boolean.parseBoolean(ChallengeConfig.CONFIG.get(configName));
+    }
+
+    @Override
+    public void registerEvents() {
         ChallengeEventHandler.registerEvents();
+    }
+
+    @Override
+    public void registerCommands() {
         CommandRegistrationCallback.EVENT.register((commandDispatcher, commandBuildContext, commandSelection) -> ChallengeCommand.register(commandDispatcher));
     }
 }

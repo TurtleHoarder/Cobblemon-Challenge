@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "cobblemonchallenge",
+  "version": "${version}",
+
+  "name": "Cobblemon Challenge",
+  "description": "Support for basic flat-level challenges in Cobblemon",
+  "authors": [
+    "TurtleHoarder"
+  ],
+  "contact": {
+    "homepage": "https://github.com/TurtleHoarder/Cobblemon-Challenge/issues",
+    "sources": "https://github.com/TurtleHoarder/Cobblemon-Challenge/issues"
+  },
+
+  "license": "MIT",
+  "icon": "icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.cobblemonchallenge.fabric.CobblemonChallengeFabric"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.10",
+    "fabric-api": "*",
+    "minecraft": "~1.20.1",
+    "cobblemon": ">=1.5.0+1.20.1",
+    "java": ">=17"
+  }
+}
