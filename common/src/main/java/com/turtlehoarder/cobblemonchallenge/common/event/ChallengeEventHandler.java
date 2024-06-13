@@ -9,20 +9,18 @@ import com.cobblemon.mod.common.api.events.CobblemonEvents;
 import com.cobblemon.mod.common.api.storage.*;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.net.messages.client.storage.party.SetPartyReferencePacket;
-import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
-
+import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
-import com.turtlehoarder.cobblemonchallenge.fabric.config.ChallengeConfig;
 import com.turtlehoarder.cobblemonchallenge.common.gui.LeadPokemonSelectionSession;
 import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
 import com.turtlehoarder.cobblemonchallenge.common.util.FakeStore;
 import com.turtlehoarder.cobblemonchallenge.common.util.FakeStorePosition;
+import dev.architectury.event.events.common.EntityEvent;
+import dev.architectury.event.events.common.LifecycleEvent;
+import dev.architectury.event.events.common.PlayerEvent;
+import dev.architectury.event.events.common.TickEvent;
 import kotlin.Unit;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
@@ -37,18 +35,21 @@ public class ChallengeEventHandler {
         registerPostVictoryEvent();
         registerChallengeLootPrevention();
         registerCobblemonSavePrevention();
+
+
         ServerEntityEvents.ENTITY_LOAD.register((entity, server) -> {
             checkSpawn(entity);
         });
-        ServerPlayConnectionEvents.DISCONNECT.register((event, server) -> {
-            onPlayerLoggedOut(event.getPlayer());
+
+        PlayerEvent.PLAYER_QUIT.register((player) -> {
+            onPlayerLoggedOut(player);
         });
 
-        ServerLifecycleEvents.SERVER_STOPPING.register((server) -> {
+        LifecycleEvent.SERVER_STOPPING.register((server) -> {
             onServerShutdown();
         });
 
-        ServerTickEvents.END_SERVER_TICK.register(ChallengeEventHandler::onServerTick);
+        TickEvent.SERVER_POST.register(ChallengeEventHandler::onServerTick);
 
     }
 
@@ -201,7 +202,7 @@ public class ChallengeEventHandler {
             while (requestIterator.hasNext()) {
                 Map.Entry<String, ChallengeCommand.ChallengeRequest> requestMap = requestIterator.next();
                 ChallengeCommand.ChallengeRequest request = requestMap.getValue();
-                if (request.createdTime() + ChallengeConfig.REQUEST_EXPIRATION_MILLIS < nowTime) {
+                if (request.createdTime() + CobblemonChallenge.REQUEST_EXPIRATION_MILLIS < nowTime) {
                     if (ChallengeUtil.isPlayerOnline(request.challengedPlayer())) {
                         request.challengedPlayer().displayClientMessage(Component.literal(ChatFormatting.RED + String.format("Challenge from %s has expired", request.challengerPlayer().getDisplayName().getString())), false);
                     }

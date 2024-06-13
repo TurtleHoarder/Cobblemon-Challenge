@@ -16,24 +16,26 @@ loom {
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle'
+
+repositories {
+    maven { url = 'https://maven.minecraftforge.net/' }
+    mavenCentral()
+}
 
 dependencies {
-    minecraft group: 'net.minecraftforge', name: 'forge', version: "${minecraft_version}-${forge_version}"
-    implementation fg.deobf("curse.maven:architectury-419699:${architectury_file}")
-    implementation fg.deobf("curse.maven:kotlin-351264:${kotlin_file}")
-    // implementation fg.deobf('curse.maven:cobblemon-687131:4797451')
-    implementation fg.deobf('com.cobblemon:forge:1.5.0+1.20.1')
-    implementation fg.deobf("com.jozufozu.flywheel:flywheel-forge-1.20.1:0.6.10-7")
+    forge("net.minecraftforge:forge:${rootProject.minecraft_version}-${rootProject.forge_version}")
+    compileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+//	modImplementation "com.github.glitchfiend:TerraBlender-forge:${rootProject.minecraft_version}-${rootProject.terrablender_version}"
+  //  common(project(path: ":common", configuration: "namedElements")) { transitive false }
+ //   shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive false }
 }
 
 configurations {
-    common
-    shadowCommon
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
 }
+
 repositories {
     maven { url = 'https://maven.minecraftforge.net/' }
     maven {
@@ -53,6 +55,13 @@ sourceSets {
             exclude ".cache"
         }
     }
+}
+
+sourcesJar {
+    duplicatesStrategy "exclude"
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
 }
 
 System.out.println("Reached Forge!");

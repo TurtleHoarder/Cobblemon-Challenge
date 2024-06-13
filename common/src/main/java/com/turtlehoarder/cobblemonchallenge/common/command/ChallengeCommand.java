@@ -2,9 +2,9 @@ package com.turtlehoarder.cobblemonchallenge.common.command;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.battles.BattleRegistry;
+import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.turtlehoarder.cobblemonchallenge.fabric.config.ChallengeConfig;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -29,11 +29,11 @@ public class ChallengeCommand {
 
     public record ChallengeRequest(String id, ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int minLevel, int maxLevel, int handicapP1, int handicapP2, boolean preview, long createdTime) {}
     public record LeadPokemonSelection(LeadPokemonSelectionSession selectionWrapper, long createdTime) {}
-    private static final float MAX_DISTANCE = ChallengeConfig.MAX_CHALLENGE_DISTANCE;
-    private static final boolean USE_DISTANCE_RESTRICTION = ChallengeConfig.CHALLENGE_DISTANCE_RESTRICTION;
-    private static final int DEFAULT_LEVEL = ChallengeConfig.DEFAULT_CHALLENGE_LEVEL;
-    private static final int DEFAULT_HANDICAP = ChallengeConfig.DEFAULT_HANDICAP;
-    private static final int CHALLENGE_COOLDOWN = ChallengeConfig.CHALLENGE_COOLDOWN_MILLIS;
+    private static final float MAX_DISTANCE = CobblemonChallenge.MAX_CHALLENGE_DISTANCE;
+    private static final boolean USE_DISTANCE_RESTRICTION = CobblemonChallenge.CHALLENGE_DISTANCE_RESTRICTION;
+    private static final int DEFAULT_LEVEL = CobblemonChallenge.DEFAULT_CHALLENGE_LEVEL;
+    private static final int DEFAULT_HANDICAP = CobblemonChallenge.DEFAULT_HANDICAP;
+    private static final int CHALLENGE_COOLDOWN = CobblemonChallenge.CHALLENGE_COOLDOWN_MILLIS;
     public static HashMap<String, ChallengeRequest> CHALLENGE_REQUESTS = new HashMap<>();
     public static final HashMap<UUID, LeadPokemonSelection> ACTIVE_SELECTIONS = new HashMap<>();
     private static final HashMap<UUID, Long> LAST_SENT_CHALLENGE = new HashMap<>();

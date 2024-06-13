@@ -10,7 +10,7 @@ import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
+import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
 import kotlin.Unit;
 import net.minecraft.server.level.ServerPlayer;

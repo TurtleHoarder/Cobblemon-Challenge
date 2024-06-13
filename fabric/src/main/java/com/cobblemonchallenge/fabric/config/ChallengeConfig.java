@@ -1,7 +1,8 @@
-package com.turtlehoarder.cobblemonchallenge.fabric.config;
+package com.cobblemonchallenge.fabric.config;
 
-import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
+import com.cobblemonchallenge.fabric.CobblemonChallengeFabric;
 import com.mojang.datafixers.util.Pair;
+import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 
 public class ChallengeConfig {
     public static SimpleConfig CONFIG;
@@ -17,7 +18,7 @@ public class ChallengeConfig {
         CobblemonChallenge.LOGGER.info("Loading Challenge Configs");
         configs = new ChallengeConfigProvider();
         createConfigs();
-        CONFIG = SimpleConfig.of(CobblemonChallenge.MODID + "-config").provider(configs).request();
+        CONFIG = SimpleConfig.of(CobblemonChallengeFabric.MODID + "-config").provider(configs).request();
         assignConfigs();
     }
     private static void createConfigs() {

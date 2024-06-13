@@ -1,3 +1,32 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "1.7.10"
+}
+
 architectury {
     common("forge", "fabric")
+}
+
+repositories {
+    maven {
+        url = "https://maven.impactdev.net/repository/development"
+        content {
+            includeGroup 'com.cobblemon'
+        }
+    }
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+}
+
+dependencies {
+    modImplementation("com.cobblemon:mod:${rootProject.cobblemon_version}")
+    modImplementation"curse.maven:architectury-419699:4663010"
+}
+
+
+remapJar {
+    archiveClassifier.set("${rootProject.minecraft_version}")
 }
