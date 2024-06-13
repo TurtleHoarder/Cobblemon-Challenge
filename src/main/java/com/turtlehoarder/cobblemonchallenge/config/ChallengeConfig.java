@@ -10,6 +10,7 @@ public class ChallengeConfig {
     public static int MAX_CHALLENGE_DISTANCE;
     public static int DEFAULT_CHALLENGE_LEVEL;
     public static int DEFAULT_HANDICAP;
+    public static Boolean DEFAULT_SHOW_PREVIEW;
     public static int REQUEST_EXPIRATION_MILLIS;
     public static int CHALLENGE_COOLDOWN_MILLIS;
 
@@ -25,6 +26,7 @@ public class ChallengeConfig {
         configs.addKeyValuePair(new Pair<>("maxChallengeDistance", 50));
         configs.addKeyValuePair(new Pair<>("defaultChallengeLevel", 50));
         configs.addKeyValuePair(new Pair<>("defaultHandicap", 0));
+        configs.addKeyValuePair(new Pair<>("defaultShowPreview", true));
         configs.addKeyValuePair(new Pair<>("challengeExpirationTime", 60000));
         configs.addKeyValuePair(new Pair<>("challengeCooldownTime", 5000));
     }
@@ -34,6 +36,7 @@ public class ChallengeConfig {
         CHALLENGE_DISTANCE_RESTRICTION = CONFIG.getOrDefault("challengeDistanceRestriction", true);
         DEFAULT_CHALLENGE_LEVEL = CONFIG.getOrDefault("defaultChallengeLevel", 50);
         DEFAULT_HANDICAP = CONFIG.getOrDefault("defaultHandicap", 0);
+        DEFAULT_SHOW_PREVIEW = CONFIG.getOrDefault("defaultShowPreview", true);
         MAX_CHALLENGE_DISTANCE = CONFIG.getOrDefault("maxChallengeDistance", 50);
         REQUEST_EXPIRATION_MILLIS = CONFIG.getOrDefault("challengeExpirationTime", 60000);
     }

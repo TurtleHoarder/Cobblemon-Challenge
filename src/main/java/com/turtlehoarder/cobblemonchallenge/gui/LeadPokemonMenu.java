@@ -6,6 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
+
 import org.jetbrains.annotations.NotNull;
 
 public class LeadPokemonMenu extends ChestMenu {

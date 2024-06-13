@@ -1,15 +1,16 @@
 package com.turtlehoarder.cobblemonchallenge.gui;
 
+import com.turtlehoarder.cobblemonchallenge.api.ChallengeRequest;
+import com.turtlehoarder.cobblemonchallenge.battle.ChallengeFormat;
+import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
+
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.CobblemonItems;
 import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.item.PokemonItem;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
-import com.turtlehoarder.cobblemonchallenge.battle.ChallengeFormat;
-import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
-import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -22,6 +23,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,9 +45,9 @@ public class LeadPokemonMenuProvider implements MenuProvider {
     private LeadPokemonMenu openedMenu;
     public List<Integer> selectedSlots = new ArrayList<Integer>();
 
-    private ChallengeCommand.ChallengeRequest request;
+    private ChallengeRequest request;
 
-    public LeadPokemonMenuProvider(LeadPokemonSelectionSession wrapper, ServerPlayer selector, ServerPlayer rivalPlayer, ChallengeCommand.ChallengeRequest request) {
+    public LeadPokemonMenuProvider(LeadPokemonSelectionSession wrapper, ServerPlayer selector, ServerPlayer rivalPlayer, ChallengeRequest request) {
         this.selector = selector;
         this.rival = rivalPlayer;
         this.selectionSession = wrapper;
