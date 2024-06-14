@@ -1,6 +1,9 @@
 package com.cobblemonchallenge.forge.config;
 
+import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 import net.minecraftforge.common.ForgeConfigSpec;
+
+import java.util.HashMap;
 
 public class ChallengeConfig{
 
@@ -9,6 +12,9 @@ public class ChallengeConfig{
     public static ForgeConfigSpec.ConfigValue<Integer> DEFAULT_CHALLENGE_LEVEL;
     public static ForgeConfigSpec.ConfigValue<Integer> REQUEST_EXPIRATION_MILLIS;
     public static ForgeConfigSpec.ConfigValue<Integer> CHALLENGE_COOLDOWN_MILLIS;
+    public static ForgeConfigSpec.ConfigValue<Integer> DEFAULT_HANDICAP_LEVEL;
+
+    public HashMap<String, ForgeConfigSpec.ConfigValue> configMap = new HashMap<>();
 
     public ChallengeConfig(ForgeConfigSpec.Builder builder){
         builder.push("cobblemonchallenge");
@@ -17,5 +23,24 @@ public class ChallengeConfig{
         DEFAULT_CHALLENGE_LEVEL = builder.comment("The default level to set teams to if there is no challenge specified").define("defaultChallengeLevel", 50);
         REQUEST_EXPIRATION_MILLIS = builder.comment("Time in millis before a challenge request expires").define("challengeExpirationTime", 60000);
         CHALLENGE_COOLDOWN_MILLIS = builder.comment("Time in millis before a player can send a consecutive challenge").define("challengeCooldownTime", 5000);
+        DEFAULT_HANDICAP_LEVEL = builder.comment("Default Handicap in levels of handicapped battles.").define("defaultHandicap", 0);
+
+        configMap.put(CobblemonChallenge.CHALLENGE_DISTANCE_CONFIG_NAME, CHALLENGE_DISTANCE_RESTRICTION);
+        configMap.put(CobblemonChallenge.MAX_CHALLENGE_DISTANCE_CONFIG_NAME, MAX_CHALLENGE_DISTANCE);
+        configMap.put(CobblemonChallenge.DEFAULT_CHALLENGE_LEVEL_CONFIG_NAME, DEFAULT_CHALLENGE_LEVEL);
+        configMap.put(CobblemonChallenge.CHALLENGE_EXPIRATION_TIME_CONFIG_NAME, REQUEST_EXPIRATION_MILLIS);
+        configMap.put(CobblemonChallenge.CHALLENGE_COOLDOWN_CONFIG_NAME, CHALLENGE_COOLDOWN_MILLIS);
+        configMap.put(CobblemonChallenge.DEFAULT_HANDICAP_CONFIG_NAME, DEFAULT_HANDICAP_LEVEL);
     }
+
+    public int getIntConfig(String name) {
+        return Integer.parseInt(configMap.get(name).get().toString());
+    }
+
+    public boolean getBooleanConfig(String name) {
+        return Boolean.parseBoolean(configMap.get(name).get().toString());
+    }
+
+
+
 }

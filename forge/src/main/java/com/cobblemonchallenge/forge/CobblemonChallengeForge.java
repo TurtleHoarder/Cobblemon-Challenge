@@ -14,13 +14,11 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.function.Supplier;
 
 @Mod(CobblemonChallenge.MODID)
 public class CobblemonChallengeForge extends CobblemonChallengeCommonInterface {
-    public static final String MOD_ID = "cobblemonchallenge";
-    public static final Logger LOGGER = LoggerFactory.getLogger("cobblemonchallenge");
     private static ChallengeConfig config;
     private static ForgeConfigSpec commonSpec;
 
@@ -33,7 +31,11 @@ public class CobblemonChallengeForge extends CobblemonChallengeCommonInterface {
     public CobblemonChallengeForge() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, commonSpec);
         CobblemonChallenge challenge = new CobblemonChallenge();
-        challenge.initializeChallenge(this);
+        DistExecutor.safeCallWhenOn(Dist.DEDICATED_SERVER, () -> {
+            System.out.println("Doing Safe Call");
+            challenge.initializeChallenge(this);
+            return null;
+        });
     }
 
     public void commands(RegisterCommandsEvent e) {
@@ -42,12 +44,12 @@ public class CobblemonChallengeForge extends CobblemonChallengeCommonInterface {
 
     @Override
     public int getIntConfig(String configName) {
-        return 0;
+        return config.getIntConfig(configName);
     }
 
     @Override
     public boolean getBooleanConfig(String configName) {
-        return false;
+        return config.getBooleanConfig(configName);
     }
 
     @Override

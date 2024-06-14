@@ -34,7 +34,7 @@ public class ChallengeEventHandler {
 
     public static void registerEvents() {
 
-        // Register Cobblemon-Related Events
+        // Register Cobblemon-Related Events using CobblemonEvents
         registerPostVictoryEvent();
         registerChallengeLootPrevention();
         registerCobblemonSavePrevention();

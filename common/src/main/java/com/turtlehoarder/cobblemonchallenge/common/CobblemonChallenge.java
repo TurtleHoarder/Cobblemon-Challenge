@@ -16,13 +16,15 @@ public class CobblemonChallenge {
     public static int REQUEST_EXPIRATION_MILLIS;
     public static int CHALLENGE_COOLDOWN_MILLIS;
 
-    private static final String CHALLENGE_DISTANCE_CONFIG_NAME = "challengeDistanceRestriction";
-    private static final String MAX_CHALLENGE_DISTANCE_CONFIG_NAME = "maxChallengeDistance";
-    private static final String DEFAULT_CHALLENGE_LEVEL_CONFIG_NAME = "defaultChallengeLevel";
-    private static final String DEFAULT_HANDICAP_CONFIG_NAME = "defaultHandicap";
-    private static final String CHALLENGE_EXPIRATION_TIME_CONFIG_NAME = "challengeExpirationTime";
-    private static final String CHALLENGE_COOLDOWN_CONFIG_NAME = "challengeCooldownTime";
+    public static final String CHALLENGE_DISTANCE_CONFIG_NAME = "challengeDistanceRestriction";
+    public static final String MAX_CHALLENGE_DISTANCE_CONFIG_NAME = "maxChallengeDistance";
+    public static final String DEFAULT_CHALLENGE_LEVEL_CONFIG_NAME = "defaultChallengeLevel";
+    public static final String DEFAULT_HANDICAP_CONFIG_NAME = "defaultHandicap";
+    public static final String CHALLENGE_EXPIRATION_TIME_CONFIG_NAME = "challengeExpirationTime";
+    public static final String CHALLENGE_COOLDOWN_CONFIG_NAME = "challengeCooldownTime";
+
     private CobblemonChallengeCommonInterface implementation;
+
     public CobblemonChallenge() {
 
     }
@@ -35,7 +37,6 @@ public class CobblemonChallenge {
         DEFAULT_HANDICAP = implementation.getIntConfig(DEFAULT_HANDICAP_CONFIG_NAME);
         REQUEST_EXPIRATION_MILLIS = implementation.getIntConfig(CHALLENGE_EXPIRATION_TIME_CONFIG_NAME);
         CHALLENGE_COOLDOWN_MILLIS = implementation.getIntConfig(CHALLENGE_COOLDOWN_CONFIG_NAME);
-
         implementation.registerCommands();
         implementation.registerEvents();
     }
