@@ -13,6 +13,8 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.function.Supplier;
@@ -30,11 +32,14 @@ public class CobblemonChallengeForge extends CobblemonChallengeCommonInterface {
 
     public CobblemonChallengeForge() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, commonSpec);
-        CobblemonChallenge challenge = new CobblemonChallenge();
-        DistExecutor.safeCallWhenOn(Dist.DEDICATED_SERVER, () -> {
-            System.out.println("Doing Safe Call");
+        MinecraftForge.EVENT_BUS.addListener(this::commands);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverInitialize);
+    }
+
+    public void serverInitialize(FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            CobblemonChallenge challenge = new CobblemonChallenge();
             challenge.initializeChallenge(this);
-            return null;
         });
     }
 
@@ -59,7 +64,5 @@ public class CobblemonChallengeForge extends CobblemonChallengeCommonInterface {
     }
 
     @Override
-    public void registerCommands() {
-        MinecraftForge.EVENT_BUS.addListener(this::commands);
-    }
+    public void registerCommands() {}
 }

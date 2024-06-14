@@ -38,7 +38,7 @@ dependencies {
         parchment("org.parchmentmc.data:${mappings_channel}-${mappings_version}@zip")
     }
     implementation("thedarkcolour:kotlinforforge:${kff_version}")
-
+    modRuntimeOnly "curse.maven:architectury-419699:4663010"
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
     modImplementation "com.cobblemon:forge:${cobblemon_version}"
