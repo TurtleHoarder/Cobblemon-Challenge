@@ -19,7 +19,8 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.turtlehoarder.cobblemonchallenge.CobblemonChallenge"
+      "com.turtlehoarder.cobblemonchallenge.CobblemonChallenge",
+      "com.cobblemontournament.CobblemonTournament"
     ]
   },
   "depends": {

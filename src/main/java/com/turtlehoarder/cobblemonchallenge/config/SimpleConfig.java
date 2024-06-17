@@ -21,6 +21,9 @@ package com.turtlehoarder.cobblemonchallenge.config;
  * THE SOFTWARE.
  */
 
+import com.cobblemontournament.api.tournament.TournamentType;
+import com.turtlehoarder.cobblemonchallenge.battle.ChallengeFormat;
+
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -224,6 +227,36 @@ public class SimpleConfig {
         } catch (Exception e) {
             return def;
         }
+    }
+
+    /**
+     * Returns ChallengeFormat enum value from config corresponding to the given
+     * key, or the default ChallengeFormat enum if the key is missing or invalid.
+     *
+     * @return value corresponding to the given key, or the default value
+     */
+    public ChallengeFormat getOrDefault( String key, ChallengeFormat def ) {
+        for (ChallengeFormat f : ChallengeFormat.values()) {
+            if (f.name().equals(key)) {
+                return f;
+            }
+        }
+        return def;
+    }
+
+    /**
+     * Temporary while tournaments is integrated
+     * @param key
+     * @param def
+     * @return
+     */
+    public TournamentType getOrDefault(String key, TournamentType def ) {
+        for (TournamentType f : TournamentType.values()) {
+            if (f.name().equals(key)) {
+                return f;
+            }
+        }
+        return def;
     }
 
     /**

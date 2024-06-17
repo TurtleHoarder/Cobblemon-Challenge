@@ -2,6 +2,7 @@ package com.turtlehoarder.cobblemonchallenge;
 
 import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.config.ChallengeConfig;
+import com.turtlehoarder.cobblemonchallenge.config.UniversalDifficultyConfig;
 import com.turtlehoarder.cobblemonchallenge.event.ChallengeEventHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -17,6 +18,7 @@ public class CobblemonChallenge implements ModInitializer {
     @Override
     public void onInitialize() {
         ChallengeConfig.registerConfigs();
+        UniversalDifficultyConfig.registerConfigs();
         ChallengeEventHandler.registerEvents();
         CommandRegistrationCallback.EVENT.register((commandDispatcher, commandBuildContext, commandSelection) -> ChallengeCommand.register(commandDispatcher));
     }

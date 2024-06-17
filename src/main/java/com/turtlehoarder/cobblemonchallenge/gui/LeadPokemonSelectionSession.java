@@ -1,11 +1,13 @@
 package com.turtlehoarder.cobblemonchallenge.gui;
 
-import com.cobblemon.mod.common.battles.BattleFormat;
 import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
+import com.turtlehoarder.cobblemonchallenge.api.ChallengeRequest;
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBuilderException;
-import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
+
+import com.cobblemon.mod.common.battles.BattleFormat;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,7 +18,7 @@ import java.util.Vector;
 public class LeadPokemonSelectionSession {
     private final LeadPokemonMenuProvider challengerMenuProvider;
     private final LeadPokemonMenuProvider challengedMenuProvider;
-    private final ChallengeCommand.ChallengeRequest originRequest;
+    private final ChallengeRequest originRequest;
     private final UUID uuid;
     public long creationTime;
     private int pokemonToSelect = 1;
@@ -28,7 +30,7 @@ public class LeadPokemonSelectionSession {
 
     public static int LEAD_TIMEOUT_MILLIS = 90000;
 
-    public LeadPokemonSelectionSession(UUID uuid, long creationTime, ChallengeCommand.ChallengeRequest request) {
+    public LeadPokemonSelectionSession(UUID uuid, long creationTime, ChallengeRequest request) {
         this.originRequest = request;
         this.uuid = uuid;
         this.creationTime = creationTime;
@@ -61,23 +63,19 @@ public class LeadPokemonSelectionSession {
     }
 
     private void beginBattle() {
-        int minLevel = originRequest.minLevel();
-        int maxLevel = originRequest.maxLevel();
-        int handicapP1 = originRequest.handicapP1();
-        int handicapP2 = originRequest.handicapP2();
         SESSIONS_TO_CANCEL.add(this);
         challengerMenuProvider.forceCloseMenu();
         challengedMenuProvider.forceCloseMenu();
         ChallengeBattleBuilder challengeBuilder = new ChallengeBattleBuilder();
         try {
-            challengeBuilder.lvlxpvp(originRequest.challengerPlayer(), originRequest.challengedPlayer(), BattleFormat.Companion.getGEN_9_SINGLES(), minLevel, maxLevel, handicapP1, handicapP2, challengerMenuProvider.selectedSlots, challengedMenuProvider.selectedSlots);
+            challengeBuilder.lvlxpvp(originRequest.challengerPlayer(), originRequest.challengedPlayer(), BattleFormat.Companion.getGEN_9_SINGLES(), originRequest.properties(), challengerMenuProvider.selectedSlots, challengedMenuProvider.selectedSlots);
         } catch (ChallengeBuilderException e) {
             e.printStackTrace();
         }
     }
 
-    public boolean teamPreviewOn() {
-        return originRequest.preview();
+    public boolean isShowTeamPreview() {
+        return originRequest.properties().getShowPreview();
     }
 
     private boolean isBattleReady() {

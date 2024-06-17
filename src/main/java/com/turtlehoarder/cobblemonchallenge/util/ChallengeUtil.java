@@ -7,10 +7,10 @@ import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.util.LocalizationUtilsKt;
-import com.turtlehoarder.cobblemonchallenge.CobblemonChallenge;
+import com.turtlehoarder.cobblemonchallenge.api.ChallengeProperties;
+import com.turtlehoarder.cobblemonchallenge.api.ChallengeRequest;
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeFormat;
-import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -54,13 +54,13 @@ public class ChallengeUtil {
     }
 
     public static boolean isPlayerOnline(ServerPlayer player) {
+        if (player.getServer() == null) { return false; } // prevent NullPointerException
         return player.getServer().getPlayerList().getPlayer(player.getUUID()) != null;
     }
 
-    public static ChallengeCommand.ChallengeRequest createChallengeRequest(ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int minLevel, int maxLevel, int handicapP1, int handicapP2, boolean preview) {
+    public static ChallengeRequest createChallengeRequest(ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int minLevel, int maxLevel, int handicapP1, int handicapP2, boolean showPreview) {
         String key = UUID.randomUUID().toString().replaceAll("-", "");
-        ChallengeCommand.ChallengeRequest newRequest = new ChallengeCommand.ChallengeRequest(key, challengerPlayer, challengedPlayer, minLevel, maxLevel, handicapP1, handicapP2, preview, System.currentTimeMillis());
-        return newRequest;
+        return new ChallengeRequest(key, challengerPlayer, challengedPlayer, new ChallengeProperties(null,minLevel, maxLevel, handicapP1, handicapP2, showPreview), System.currentTimeMillis());
     }
 
     public static ItemLike getDisplayBlockForPokemon(Pokemon pokemon) {
@@ -96,12 +96,12 @@ public class ChallengeUtil {
         String statSeparator = ChatFormatting.GRAY + " / ";
         Component statsPartOne = Component.literal(String.format(ChatFormatting.RED + "HP: %d" + statSeparator + ChatFormatting.GOLD + "Atk: %d" + statSeparator + ChatFormatting.YELLOW + "Def: %d", pokemon.getHp(), pokemon.getAttack(), pokemon.getDefence()));
         Component statsPartTwo = Component.literal(String.format(ChatFormatting.AQUA + "SpA: %d" + statSeparator + ChatFormatting.GREEN + "SpD: %d" + statSeparator + ChatFormatting.LIGHT_PURPLE + "Spe: %d", pokemon.getSpecialAttack(), pokemon.getSpecialDefence(), pokemon.getSpeed()));
-        Component moveSeperator = Component.literal( "Moves:");
+        Component moveSeparator = Component.literal( "Moves:");
         loreTag.add(StringTag.valueOf(Component.Serializer.toJson(abilityComponent)));
         loreTag.add(StringTag.valueOf(Component.Serializer.toJson(natureComponent)));
         loreTag.add(StringTag.valueOf(Component.Serializer.toJson(statsPartOne)));
         loreTag.add(StringTag.valueOf(Component.Serializer.toJson(statsPartTwo)));
-        loreTag.add(StringTag.valueOf(Component.Serializer.toJson(moveSeperator)));
+        loreTag.add(StringTag.valueOf(Component.Serializer.toJson(moveSeparator)));
         pokemon.getMoveSet().getMoves().forEach(move -> {
             Component moveComponent = Component.literal(ChatFormatting.WHITE + String.format("%s - %d/%d", move.getDisplayName().getString() + ChatFormatting.GRAY, move.getMaxPp(), move.getMaxPp()));
             loreTag.add(StringTag.valueOf(Component.Serializer.toJson(moveComponent)));
@@ -112,14 +112,15 @@ public class ChallengeUtil {
     // Roundabout, but reliable way of getting the associated owner UUID of the cloned pokemon sent out in a challenge
     public static UUID getOwnerUuidOfClonedPokemon(PokemonBattle battle, PokemonEntity pokemonEntity) {
         for (ActiveBattlePokemon abp : battle.getActivePokemon()) {
-            if (abp.getBattlePokemon() != null && pokemonEntity.getPokemon().getUuid().equals(abp.getBattlePokemon().getEffectedPokemon().getUuid())) {
-                return abp.getBattlePokemon().getOriginalPokemon().getOwnerUUID();
+            var battlePokemon = abp.getBattlePokemon();
+            if (battlePokemon != null && pokemonEntity.getPokemon().getUuid().equals(battlePokemon.getEffectedPokemon().getUuid())) {
+                return battlePokemon.getOriginalPokemon().getOwnerUUID();
             }
         }
-
         return null;
     }
 
+    @SuppressWarnings("unused")
     public static BattlePokemon applyFormatTransformations(ChallengeFormat format, BattlePokemon pokemon, int level) {
         if (format == ChallengeFormat.STANDARD_6V6) {
             pokemon.getEffectedPokemon().setLevel(level);
@@ -128,10 +129,6 @@ public class ChallengeUtil {
         return pokemon;
     }
 
-    // Method for clamping Battle Pokemon to level range, between 1-100, & applying handicap
-    //      > the handicap applied AFTER level clamp to range
-    //      > A players level may be outside this range after the handicap is applied
-    //      >  But, the finalized handicap will be a hard clamped to (1,100)
     public static int getBattlePokemonAdjustedLevel(int actualLevel, int minLevel, int maxLevel, int handicap) {
         int adjustedLevel = (actualLevel < minLevel) ? minLevel + handicap : Math.min(actualLevel, maxLevel) + handicap;
         return (adjustedLevel < 1) ? 1 : Math.min(adjustedLevel, 100);
