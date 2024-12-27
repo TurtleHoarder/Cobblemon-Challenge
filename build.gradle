@@ -1,9 +1,20 @@
+buildscript {
+    repositories {
+        maven { url = "https://maven.neoforged.net/releases"}
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.neoforged', name: 'neoforge', changing: true
+    }
+}
+
 plugins {
     id("java")
     id("java-library")
     id "com.github.johnrengelman.shadow" version "8.1.1"
     id "dev.architectury.loom" version("1.7-SNAPSHOT") apply true
     id "architectury-plugin" version("3.4-SNAPSHOT") apply true
+
 }
 
 architectury {
