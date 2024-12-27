@@ -157,7 +157,10 @@ public class ChallengeEventHandler {
 
     // To keep track of cloned pokemon, check to see if they have a battle id matching that of a Challenge upon spawning.
     public static void checkSpawn(Entity entity) {
-        if (entity instanceof PokemonEntity pokemonEntity) {
+        /**
+         * Temporarily disabling the custom-checking mechanisms so we can rely on internal cobblemon clone-handling.
+         *
+          if (entity instanceof PokemonEntity pokemonEntity) {
             if (ChallengeUtil.isPokemonPartOfChallenge(pokemonEntity)) {
                 CobblemonChallenge.LOGGER.debug(String.format("Entity Joined already in battle: %s | Battle id %s", entity.getDisplayName().getString(), pokemonEntity.getBattleId()));
                 ChallengeBattleBuilder.clonedPokemonList.add(pokemonEntity);
@@ -175,11 +178,8 @@ public class ChallengeEventHandler {
                     pokemonEntity.getPokemon().getStoreCoordinates().set(new StoreCoordinates<>(fakePartyStore, new FakeStorePosition()));
                     pokemonEntity.getBusyLocks().add("Cloned_Pokemon"); // Busy lock prevents others from interacting with cloned pokemon
                 }
-
-
-
             }
-        }
+         } */
     }
 
     public static void onServerShutdown() {

@@ -12,13 +12,20 @@ import com.turtlehoarder.cobblemonchallenge.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.battle.ChallengeFormat;
 import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class ChallengeUtil {
@@ -57,9 +64,8 @@ public class ChallengeUtil {
         return player.getServer().getPlayerList().getPlayer(player.getUUID()) != null;
     }
 
-    public static ChallengeCommand.ChallengeRequest createChallengeRequest(ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int minLevel, int maxLevel, int handicapP1, int handicapP2, boolean preview) {
-        String key = UUID.randomUUID().toString().replaceAll("-", "");
-        ChallengeCommand.ChallengeRequest newRequest = new ChallengeCommand.ChallengeRequest(key, challengerPlayer, challengedPlayer, minLevel, maxLevel, handicapP1, handicapP2, preview, System.currentTimeMillis());
+    public static ChallengeCommand.ChallengeRequest createChallengeRequest(ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, boolean preview) {        String key = UUID.randomUUID().toString().replaceAll("-", "");
+        ChallengeCommand.ChallengeRequest newRequest = new ChallengeCommand.ChallengeRequest(key, challengerPlayer, challengedPlayer, level, preview, System.currentTimeMillis());
         return newRequest;
     }
 
@@ -69,7 +75,7 @@ public class ChallengeUtil {
             case "normal" -> Blocks.WHITE_STAINED_GLASS_PANE;
             case "fire" -> Blocks.RED_STAINED_GLASS_PANE;
             case "water", "dragon" -> Blocks.BLUE_STAINED_GLASS_PANE;
-            case "grass" -> Items.GRASS;
+            case "grass" -> Items.TALL_GRASS;
             case "electric" -> Blocks.YELLOW_STAINED_GLASS_PANE;
             case "ice" -> Blocks.CYAN_STAINED_GLASS_PANE;
             case "fighting" -> Items.RED_STAINED_GLASS_PANE;
@@ -88,8 +94,8 @@ public class ChallengeUtil {
 
 
 
-    public static ListTag generateLoreTagForPokemon(Pokemon pokemon) {
-        ListTag loreTag = new ListTag();
+    public static ItemLore generateLoreTagForPokemon(Pokemon pokemon) {
+        List<Component> components = new ArrayList<>();
         Component abilityComponent = Component.literal(String.format(ChatFormatting.GRAY  + "Ability: %s", ChatFormatting.YELLOW + LocalizationUtilsKt.lang(String.format("ability.%s", pokemon.getAbility().getName())).getString()));
         String natureKey = pokemon.getNature().getName().toLanguageKey();
         Component natureComponent = Component.literal(String.format(ChatFormatting.GRAY + "Nature: %s", ChatFormatting.YELLOW + LocalizationUtilsKt.lang(String.format("nature.%s",natureKey.substring(natureKey.lastIndexOf('.') + 1))).getString()));
@@ -97,16 +103,16 @@ public class ChallengeUtil {
         Component statsPartOne = Component.literal(String.format(ChatFormatting.RED + "HP: %d" + statSeparator + ChatFormatting.GOLD + "Atk: %d" + statSeparator + ChatFormatting.YELLOW + "Def: %d", pokemon.getHp(), pokemon.getAttack(), pokemon.getDefence()));
         Component statsPartTwo = Component.literal(String.format(ChatFormatting.AQUA + "SpA: %d" + statSeparator + ChatFormatting.GREEN + "SpD: %d" + statSeparator + ChatFormatting.LIGHT_PURPLE + "Spe: %d", pokemon.getSpecialAttack(), pokemon.getSpecialDefence(), pokemon.getSpeed()));
         Component moveSeperator = Component.literal( "Moves:");
-        loreTag.add(StringTag.valueOf(Component.Serializer.toJson(abilityComponent)));
-        loreTag.add(StringTag.valueOf(Component.Serializer.toJson(natureComponent)));
-        loreTag.add(StringTag.valueOf(Component.Serializer.toJson(statsPartOne)));
-        loreTag.add(StringTag.valueOf(Component.Serializer.toJson(statsPartTwo)));
-        loreTag.add(StringTag.valueOf(Component.Serializer.toJson(moveSeperator)));
+        components.add(abilityComponent);
+        components.add(natureComponent);
+        components.add(statsPartOne);
+        components.add(statsPartTwo);
+        components.add(moveSeperator);
         pokemon.getMoveSet().getMoves().forEach(move -> {
             Component moveComponent = Component.literal(ChatFormatting.WHITE + String.format("%s - %d/%d", move.getDisplayName().getString() + ChatFormatting.GRAY, move.getMaxPp(), move.getMaxPp()));
-            loreTag.add(StringTag.valueOf(Component.Serializer.toJson(moveComponent)));
+            components.add(moveComponent);
         });
-        return loreTag;
+        return new ItemLore(components);
     }
 
     // Roundabout, but reliable way of getting the associated owner UUID of the cloned pokemon sent out in a challenge

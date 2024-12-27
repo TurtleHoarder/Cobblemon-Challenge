@@ -11,16 +11,19 @@ import com.turtlehoarder.cobblemonchallenge.battle.ChallengeFormat;
 import com.turtlehoarder.cobblemonchallenge.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.util.ChallengeUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Unit;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,21 +73,18 @@ public class LeadPokemonMenuProvider implements MenuProvider {
         PartyStore p2Party = Cobblemon.INSTANCE.getStorage().getParty(rival);
 
         setupGlassFiller(leadPokemonMenu);
-        int handicapP1 = (this.selector == request.challengerPlayer()) ? request.handicapP1() : request.handicapP2();
-        int handicapP2 = (this.selector == request.challengerPlayer()) ? request.handicapP2() : request.handicapP1();
-
         for (int x = 0; x < p1Party.size(); x ++) {
             int itemSlot = x * 9; // Lefthand column of the menu
             Pokemon pokemon = p1Party.get(x);
             if (pokemon == null) // Skip any empty slots in the pokemon team
                 continue;
             BattlePokemon copy = BattlePokemon.Companion.safeCopyOf(pokemon);
-            int adjustedLevelP1 = ChallengeUtil.getBattlePokemonAdjustedLevel(pokemon.getLevel(), request.minLevel(), request.maxLevel(), handicapP1);
-            pokemon = ChallengeUtil.applyFormatTransformations(ChallengeFormat.STANDARD_6V6, copy, adjustedLevelP1).getEffectedPokemon(); // Apply battle transformations to each pokemon
+            pokemon = ChallengeUtil.applyFormatTransformations(ChallengeFormat.STANDARD_6V6, copy, request.level()).getEffectedPokemon(); // Apply battle transformations to each pokemon
             ItemStack pokemonItem = PokemonItem.from(pokemon, 1);
-            pokemonItem.setHoverName(Component.literal(ChatFormatting.AQUA + String.format("%s (lvl%d)", pokemon.getDisplayName().getString(), adjustedLevelP1)));
-            ListTag pokemonLoreTag = ChallengeUtil.generateLoreTagForPokemon(pokemon);
-            pokemonItem.getOrCreateTagElement("display").put("Lore", pokemonLoreTag);
+            pokemonItem.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.AQUA + String.format("%s (lvl%d)", pokemon.getDisplayName().getString(), request.level())));
+            ItemLore pokemonLoreTag = ChallengeUtil.generateLoreTagForPokemon(pokemon);
+
+            pokemonItem.set(DataComponents.LORE, pokemonLoreTag);
             leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
         }
 
@@ -97,13 +97,12 @@ public class LeadPokemonMenuProvider implements MenuProvider {
             }
             if (selectionSession.teamPreviewOn()) {
                 ItemStack pokemonItem = PokemonItem.from(pokemon, 1);
-                int adjustedLevelP2 = ChallengeUtil.getBattlePokemonAdjustedLevel(pokemon.getLevel(), request.minLevel(), request.maxLevel(), handicapP2);
-                pokemonItem.setHoverName(Component.literal(ChatFormatting.RED + String.format("%s's %s (lvl%d)", rival.getDisplayName().getString(), pokemon.getDisplayName().getString(), adjustedLevelP2)));
+                pokemonItem.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.RED + String.format("%s's %s (lvl%d)", rival.getDisplayName().getString(), pokemon.getDisplayName().getString(), request.level())));
                 leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
             } else {
                 ItemStack pokemonItem = new ItemStack(CobblemonItems.POKE_BALL.asItem());
-                pokemonItem.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL); // Hide catch rate modifier
-                pokemonItem.setHoverName(Component.literal(ChatFormatting.RED + String.format("%s's Pokemon", rival.getDisplayName().getString())));
+                pokemonItem.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
+                pokemonItem.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.RED + String.format("%s's Pokemon", rival.getDisplayName().getString())));
                 leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
 
             }
@@ -111,13 +110,13 @@ public class LeadPokemonMenuProvider implements MenuProvider {
     }
 
     private void setGlassDisplayName(ItemStack s, int secondsLeft) {
-        s.setHoverName(Component.literal(ChatFormatting.AQUA + String.format("Seconds left to choose: %d", secondsLeft)));
-        ListTag glassLoreTag = generateLoreTagForGlass(s);
-        s.getOrCreateTagElement("display").put("Lore", glassLoreTag);
+        s.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.AQUA + String.format("Seconds left to choose: %d", secondsLeft)));
+        ItemLore glassLoreTag = generateLoreTagForGlass(s);
+        s.set(DataComponents.LORE, glassLoreTag);
     }
 
-    private ListTag generateLoreTagForGlass(ItemStack s) {
-        ListTag loreTag = new ListTag();
+    private ItemLore generateLoreTagForGlass(ItemStack s) {
+        List<Component> components = new ArrayList<>();
         Component additionalInformation;
         if (menuState == MenuState.WAITING_FOR_RIVAL) {
             additionalInformation = Component.literal(ChatFormatting.WHITE + String.format("Waiting on %s...", rival.getDisplayName().getString()));
@@ -126,8 +125,8 @@ public class LeadPokemonMenuProvider implements MenuProvider {
         } else {
             additionalInformation = Component.literal(ChatFormatting.WHITE + "Waiting on both players to select leads...");
         }
-        loreTag.add(StringTag.valueOf(Component.Serializer.toJson(additionalInformation)));
-        return loreTag;
+        components.add(additionalInformation);
+        return new ItemLore(components);
     }
 
     private void setupGlassFiller(LeadPokemonMenu leadPokemonMenu) {
@@ -156,7 +155,8 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                         setGlassDisplayName(itemFiller, timeLeft);
                     } else if (itemSlot == 21) {
                         itemFiller = PokemonItem.from(selectedPokemon, 1);
-                        itemFiller.setHoverName(Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as your lead", selectedPokemon.getDisplayName().getString())));
+                        itemFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as your lead", selectedPokemon.getDisplayName().getString())));
+                        //itemFiller.setHoverName(Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as your lead", selectedPokemon.getDisplayName().getString())));
                     }
                 }
                 if (rivalSelectedPokemon == selectionSession.getMaxPokemonSelection()) {
@@ -166,8 +166,8 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                     }
                     if (itemSlot == 22) {
                         itemFiller = new ItemStack(CobblemonItems.POKE_BALL.asItem());
-                        itemFiller.hideTooltipPart(ItemStack.TooltipPart.ADDITIONAL); // Hide catch rate modifier
-                        itemFiller.setHoverName(Component.literal(ChatFormatting.RED + String.format("%s has selected their lead", rival.getDisplayName().getString())));
+                        itemFiller.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
+                        itemFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.RED + String.format("%s has selected their lead", rival.getDisplayName().getString())));
                     }
                 }
                 leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), itemFiller);
