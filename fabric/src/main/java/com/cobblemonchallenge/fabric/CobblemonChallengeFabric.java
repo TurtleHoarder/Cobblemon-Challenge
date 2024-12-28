@@ -5,8 +5,8 @@ import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.common.event.ChallengeEventHandler;
 import com.cobblemonchallenge.fabric.config.*;
 import com.turtlehoarder.cobblemonchallenge.common.*;
+import dev.architectury.event.events.common.CommandRegistrationEvent;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
 public class CobblemonChallengeFabric extends CobblemonChallengeCommonInterface implements ModInitializer {
 
@@ -35,6 +35,6 @@ public class CobblemonChallengeFabric extends CobblemonChallengeCommonInterface 
 
     @Override
     public void registerCommands() {
-        CommandRegistrationCallback.EVENT.register((commandDispatcher, commandBuildContext, commandSelection) -> ChallengeCommand.register(commandDispatcher));
+        CommandRegistrationEvent.EVENT.register((commandDispatcher, commandBuildContext, commandSelection) -> ChallengeCommand.register(commandDispatcher));
     }
 }

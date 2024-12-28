@@ -15,6 +15,12 @@ archivesBaseName = rootProject.archives_base_name + "-neoforge"
 loom {
     silentMojangMappingsLicense()
     enableTransitiveAccessWideners = true
+    //accessWidenerPath = project(":common").loom.accessWidenerPath
+//
+    //forge {
+    //    convertAccessWideners = true
+    //    extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
+    //}
 }
 
 configurations {
@@ -48,11 +54,6 @@ dependencies {
     forgeRuntimeLibrary("thedarkcolour:kotlinforforge-neoforge:5.3.0") {
         exclude group: "net.neoforged.fancymodloader", module: "loader"
     }
-
-    forgeRuntimeLibrary("net.kyori:adventure-text-minimessage:${property("minimessage_version")}")
-    forgeRuntimeLibrary("net.kyori:adventure-text-serializer-gson:${property("minimessage_version")}")
-    shadowBundle("net.kyori:adventure-text-minimessage:${property("minimessage_version")}")
-    shadowBundle("net.kyori:adventure-text-serializer-gson:${property("minimessage_version")}")
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')

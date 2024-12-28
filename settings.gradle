@@ -7,8 +7,9 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'CobblemonChallenge'
 
 include 'common'
 include 'fabric'
 include 'neoforge'
+
+rootProject.name = 'CobblemonChallenge'
