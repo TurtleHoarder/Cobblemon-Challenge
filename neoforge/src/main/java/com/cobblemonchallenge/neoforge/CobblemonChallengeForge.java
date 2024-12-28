@@ -1,39 +1,37 @@
-package com.cobblemonchallenge.forge;
+package com.cobblemonchallenge.neoforge;
 
-import com.cobblemonchallenge.forge.config.ChallengeConfig;
+import com.cobblemonchallenge.neoforge.config.ChallengeConfig;
 import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallengeCommonInterface;
 import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.common.event.ChallengeEventHandler;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.function.Supplier;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import org.apache.commons.lang3.tuple.Pair;
 
 @Mod(CobblemonChallenge.MODID)
 public class CobblemonChallengeForge extends CobblemonChallengeCommonInterface {
     private static ChallengeConfig config;
-    private static ForgeConfigSpec commonSpec;
+    private static ModConfigSpec commonSpec;
 
     static {
-        final Pair<ChallengeConfig, ForgeConfigSpec> common = new ForgeConfigSpec.Builder().configure(ChallengeConfig::new);
+        final Pair<ChallengeConfig, ModConfigSpec> common = new ModConfigSpec.Builder().configure(ChallengeConfig::new);
         config = common.getLeft();
         commonSpec = common.getRight();
+
     }
 
-    public CobblemonChallengeForge() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, commonSpec);
-        MinecraftForge.EVENT_BUS.addListener(this::commands);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverInitialize);
+    public CobblemonChallengeForge(ModContainer container) {
+        container.registerConfig(ModConfig.Type.COMMON, commonSpec);
+        NeoForge.EVENT_BUS.addListener(this::commands);
+        container.getEventBus().addListener(this::serverInitialize);
     }
 
     public void serverInitialize(FMLCommonSetupEvent event) {

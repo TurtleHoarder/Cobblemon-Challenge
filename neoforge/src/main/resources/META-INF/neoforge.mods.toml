@@ -1,0 +1,40 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+issueTrackerURL = "https://github.com/TurtleHoarder/Cobblemon-Challenge/issues"
+license = "MIT License"
+
+[[mods]]
+modId = "cobblemonchallenge"
+version = "1.2.0"
+displayName = "Cobblemon Challenge"
+authors = "Turtlehoarder"
+description = '''Support for basic flat-level challenges in Cobblemon'''
+#logoFile = ""
+
+[[dependencies.cobblemonchallenge]]
+modId = "neoforge"
+mandatory = true
+versionRange = "[21.1.66,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.cobblemonchallenge]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.cobblemonchallenge]]
+modId = "architectury"
+mandatory = true
+versionRange = "[13.0.6,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.cobblemonchallenge]]
+modId = "cobblemon"
+mandatory = true
+versionRange = "[1.6.0,)"
+ordering = "AFTER"
+side = "BOTH"
