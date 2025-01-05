@@ -11,6 +11,8 @@ allprojects {
     apply(plugin = "java")
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
+    version = "1.2.0"
+
     repositories {
         mavenCentral()
         maven("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/")

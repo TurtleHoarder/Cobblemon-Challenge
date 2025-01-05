@@ -11,6 +11,7 @@ import net.fabricmc.api.ModInitializer;
 public class CobblemonChallengeFabric extends CobblemonChallengeCommonInterface implements ModInitializer {
 
     public static String MODID = CobblemonChallenge.MODID;
+
     @Override
     public void onInitialize() {
         ChallengeConfig.registerConfigs();

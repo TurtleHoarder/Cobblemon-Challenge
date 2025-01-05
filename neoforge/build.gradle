@@ -67,8 +67,6 @@ shadowJar {
     exclude "com/**/*"
     exclude "com.*"
 
-    relocate 'net.kyori', 'io.github.polymeta.wondertrade.shadow.net.kyori'
-
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = "dev-shadow"
 }

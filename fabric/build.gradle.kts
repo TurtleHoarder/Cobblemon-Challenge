@@ -61,7 +61,7 @@ tasks {
     remapJar {
         dependsOn(shadowJar)
         inputFile.set(shadowJar.flatMap { it.archiveFile })
-        archiveBaseName.set("wondertrade-${project.name}")
+        archiveBaseName.set("cobblemonchallenge-${project.name}")
         archiveVersion.set("${rootProject.version}")
     }
 

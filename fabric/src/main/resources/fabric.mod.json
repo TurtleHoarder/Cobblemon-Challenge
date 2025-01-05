@@ -19,7 +19,8 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.cobblemonchallenge.fabric.CobblemonChallengeFabric"    ]
+      "com.turtlehoarder.cobblemonchallenge.fabric.CobblemonChallengeFabric"
+    ]
   },
   "depends": {
     "fabricloader": ">=0.14.19",
