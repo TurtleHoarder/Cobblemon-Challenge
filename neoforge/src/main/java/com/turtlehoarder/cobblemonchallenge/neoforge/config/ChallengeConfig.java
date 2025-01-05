@@ -20,7 +20,7 @@ public class ChallengeConfig{
         builder.push("cobblemonchallenge");
         CHALLENGE_DISTANCE_RESTRICTION = builder.comment("Set to false if you don't want a distance restriction on challenges").define("challengeDistanceRestriction", true);
         MAX_CHALLENGE_DISTANCE = builder.comment("Max distance of a challenge if challengeDistanceRestriction is set to true").define("maxChallengeDistance", 50);
-        DEFAULT_CHALLENGE_LEVEL = builder.comment("The default level to set teams to if there is no challenge specified").define("defaultChallengeLevel", 50);
+        DEFAULT_CHALLENGE_LEVEL = builder.comment("The default level to set teams to if there is no challenge specified").define("defaultChallengeLevel", 100);
         REQUEST_EXPIRATION_MILLIS = builder.comment("Time in millis before a challenge request expires").define("challengeExpirationTime", 60000);
         CHALLENGE_COOLDOWN_MILLIS = builder.comment("Time in millis before a player can send a consecutive challenge").define("challengeCooldownTime", 5000);
         DEFAULT_HANDICAP_LEVEL = builder.comment("Default Handicap in levels of handicapped battles.").define("defaultHandicap", 0);

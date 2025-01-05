@@ -1,6 +1,6 @@
-package com.cobblemonchallenge.fabric.config;
+package com.turtlehoarder.cobblemonchallenge.fabric.config;
 
-import com.cobblemonchallenge.fabric.CobblemonChallengeFabric;
+import com.turtlehoarder.cobblemonchallenge.fabric.CobblemonChallengeFabric;
 import com.mojang.datafixers.util.Pair;
 import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 
@@ -24,7 +24,7 @@ public class ChallengeConfig {
     private static void createConfigs() {
         configs.addKeyValuePair(new Pair<>("challengeDistanceRestriction", true));
         configs.addKeyValuePair(new Pair<>("maxChallengeDistance", 50));
-        configs.addKeyValuePair(new Pair<>("defaultChallengeLevel", 50));
+        configs.addKeyValuePair(new Pair<>("defaultChallengeLevel", 100));
         configs.addKeyValuePair(new Pair<>("defaultHandicap", 0));
         configs.addKeyValuePair(new Pair<>("challengeExpirationTime", 60000));
         configs.addKeyValuePair(new Pair<>("challengeCooldownTime", 5000));

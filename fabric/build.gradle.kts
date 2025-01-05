@@ -52,7 +52,7 @@ tasks {
     }
 
     shadowJar {
-        exclude("architectury.common.json", "com/**/*")
+        exclude("architectury.common.json")
         archiveClassifier.set("dev-shadow")
         archiveBaseName.set("cobblemonchallenge-${project.name}")
         configurations = listOf(shadowCommon)

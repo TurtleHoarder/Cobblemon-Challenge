@@ -12,6 +12,8 @@ allprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
     version = "1.2.0"
+    group = project.properties["maven_group"]!!
+
 
     repositories {
         mavenCentral()

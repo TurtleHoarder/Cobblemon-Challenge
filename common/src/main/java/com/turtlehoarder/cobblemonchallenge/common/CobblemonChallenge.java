@@ -1,5 +1,7 @@
 package com.turtlehoarder.cobblemonchallenge.common;
 
+import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
+import dev.architectury.event.events.common.CommandRegistrationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,12 @@ public class CobblemonChallenge {
         implementation.registerCommands();
         implementation.registerEvents();
     }
+
+    public static void registerCommands() {
+        CommandRegistrationEvent.EVENT.register((commandDispatcher, commandBuildContext, commandSelection) -> ChallengeCommand.register(commandDispatcher));
+    }
+
+
 
 
 }
