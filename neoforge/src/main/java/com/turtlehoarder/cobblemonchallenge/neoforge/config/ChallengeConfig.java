@@ -1,11 +1,11 @@
-package com.cobblemonchallenge.neoforge.config;
+package com.turtlehoarder.cobblemonchallenge.neoforge.config;
 
 import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.HashMap;
 
-public class ChallengeConfig{
+public class ChallengeConfig {
 
     public static ModConfigSpec.ConfigValue<Boolean> CHALLENGE_DISTANCE_RESTRICTION;
     public static ModConfigSpec.ConfigValue<Integer> MAX_CHALLENGE_DISTANCE;

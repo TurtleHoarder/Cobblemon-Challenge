@@ -1,6 +1,6 @@
-package com.cobblemonchallenge.neoforge;
+package com.turtlehoarder.cobblemonchallenge.neoforge;
 
-import com.cobblemonchallenge.neoforge.config.ChallengeConfig;
+import com.turtlehoarder.cobblemonchallenge.neoforge.config.ChallengeConfig;
 import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallengeCommonInterface;
 import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
@@ -62,5 +62,7 @@ public class CobblemonChallengeForge extends CobblemonChallengeCommonInterface {
     }
 
     @Override
-    public void registerCommands() {}
+    public void registerCommands() {
+        CobblemonChallenge.registerCommands();
+    }
 }
