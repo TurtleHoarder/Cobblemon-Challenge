@@ -6,14 +6,11 @@ import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.item.PokemonItem;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeFormat;
 import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
@@ -30,13 +27,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LeadPokemonMenuProvider implements MenuProvider {
 
     private final ServerPlayer selector;
     private final ServerPlayer rival;
     private PartyStore p1Party;
-    private Pokemon selectedPokemon;
+    private List<Pokemon> selectedPokemonList = new ArrayList<>();
     private int rivalSelectedPokemon = 0;
     private final LeadPokemonSelectionSession selectionSession; // Menu Provider reports to wrapper when pokemon is selected
 
@@ -45,6 +43,13 @@ public class LeadPokemonMenuProvider implements MenuProvider {
     private MenuState menuState = MenuState.WAITING_FOR_BOTH;
     private LeadPokemonMenu openedMenu;
     public List<Integer> selectedSlots = new ArrayList<Integer>();
+    // Mappings of # pokemon selected and where in the menu to put it
+    Map<Integer, Integer> allySlotToMenuID = Map.of(1, 11,
+            2, 12,
+            3, 20,
+            4, 21,
+            5, 29,
+            6, 31);
 
     private ChallengeCommand.ChallengeRequest request;
 
@@ -149,29 +154,35 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                     itemFiller = new ItemStack(Items.GRAY_STAINED_GLASS_PANE);
                 }
                 setGlassDisplayName(itemFiller, timeLeft);
-                if (selectedPokemon != null) {
-                    if (itemSlot == 12 || itemSlot == 30 || itemSlot == 20) {
-                        itemFiller = new ItemStack(ChallengeUtil.getDisplayBlockForPokemon(selectedPokemon));
-                        setGlassDisplayName(itemFiller, timeLeft);
-                    } else if (itemSlot == 21) {
-                        itemFiller = PokemonItem.from(selectedPokemon, 1);
-                        itemFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as your lead", selectedPokemon.getDisplayName().getString())));
-                        //itemFiller.setHoverName(Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as your lead", selectedPokemon.getDisplayName().getString())));
-                    }
-                }
-                if (rivalSelectedPokemon == selectionSession.getMaxPokemonSelection()) {
-                    if (itemSlot == 23 || itemSlot == 13 || itemSlot == 31) {
-                        itemFiller = new ItemStack(Blocks.GLASS_PANE);
-                        setGlassDisplayName(itemFiller, timeLeft);
-                    }
-                    if (itemSlot == 22) {
-                        itemFiller = new ItemStack(CobblemonItems.POKE_BALL.asItem());
-                        itemFiller.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
-                        itemFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.RED + String.format("%s has selected their lead", rival.getDisplayName().getString())));
-                    }
-                }
                 leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), itemFiller);
             }
+        }
+    }
+
+    private void setupPokemonSelection(LeadPokemonMenu leadPokemonMenu) {
+        int timeLeft = (int) Math.ceil(((selectionSession.creationTime + LeadPokemonSelectionSession.LEAD_TIMEOUT_MILLIS) - System.currentTimeMillis()) / 1000f);
+        if (request.format().getTotalPokemonSelected() == 1) { // Do special effects for single-selection of pokemon
+             if (selectedPokemonList.size() > 0) {
+                Pokemon selectedPokemon = selectedPokemonList.get(0);
+                ItemStack glassFiller = new ItemStack(ChallengeUtil.getDisplayBlockForPokemon(selectedPokemon));
+                setGlassDisplayName(glassFiller, timeLeft);
+                leadPokemonMenu.setItemSlotMulti(glassFiller, 12, 30, 20);
+                ItemStack pokemonFiller = PokemonItem.from(selectedPokemon, 1);
+                pokemonFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as your lead", selectedPokemon.getDisplayName().getString())));
+                leadPokemonMenu.setItem(21, leadPokemonMenu.getStateId(), pokemonFiller);
+            }
+            if (rivalSelectedPokemon == selectionSession.getMaxPokemonSelection()) {
+                if (itemSlot == 23 || itemSlot == 13 || itemSlot == 31) {
+                    itemFiller = new ItemStack(Blocks.GLASS_PANE);
+                    setGlassDisplayName(itemFiller, timeLeft);
+                }
+                if (itemSlot == 22) {
+                    itemFiller = new ItemStack(CobblemonItems.POKE_BALL.asItem());
+                    itemFiller.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
+                    itemFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.RED + String.format("%s has selected their lead", rival.getDisplayName().getString())));
+                }
+            }
+            leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), itemFiller);
         }
     }
 
@@ -179,10 +190,10 @@ public class LeadPokemonMenuProvider implements MenuProvider {
         if (selectedSlots.size() < selectionSession.getMaxPokemonSelection()) {
             Pokemon selectedPokemon = p1Party.get(slotId);
             if (selectedPokemon != null) {
-                this.selectedPokemon = selectedPokemon;
+                this.selectedPokemonList.add(selectedPokemon);
                 selectedSlots.add(slotId);
-                setupGlassFiller(menu);
-                selectionSession.onPokemonSelected(this);
+                setupGlassFiller(menu); // Update GUI
+                selectionSession.onPokemonSelected(this); // Update the upstream so other player receives state update
                 updateMenuState();
             }
         }

@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class LeadPokemonMenu extends ChestMenu {
@@ -22,6 +23,13 @@ public class LeadPokemonMenu extends ChestMenu {
     public void removed(Player pPlayer) {
         super.removed(pPlayer);
         menuProvider.onPlayerCloseContainer();
+    }
+
+    public void setItemSlotMulti(ItemStack item, Integer... slots) {
+        for (int slot : slots) {
+            super.setItem(slot, this.getStateId(), item);
+        }
+
     }
 
     public void invalidateMenu() {

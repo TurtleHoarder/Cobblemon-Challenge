@@ -64,9 +64,9 @@ public class ChallengeUtil {
         return player.getServer().getPlayerList().getPlayer(player.getUUID()) != null;
     }
 
-    public static ChallengeCommand.ChallengeRequest createChallengeRequest(ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, boolean preview) {        String key = UUID.randomUUID().toString().replaceAll("-", "");
-        ChallengeCommand.ChallengeRequest newRequest = new ChallengeCommand.ChallengeRequest(key, challengerPlayer, challengedPlayer, level, preview, System.currentTimeMillis());
-        return newRequest;
+    public static ChallengeCommand.ChallengeRequest createChallengeRequest(ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, boolean preview, ChallengeFormat format) {
+        String key = UUID.randomUUID().toString().replaceAll("-", "");
+        return new ChallengeCommand.ChallengeRequest(key, challengerPlayer, challengedPlayer, level, preview, System.currentTimeMillis(), format);
     }
 
     public static ItemLike getDisplayBlockForPokemon(Pokemon pokemon) {

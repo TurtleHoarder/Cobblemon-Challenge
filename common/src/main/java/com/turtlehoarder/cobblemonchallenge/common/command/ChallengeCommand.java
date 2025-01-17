@@ -9,6 +9,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
+import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeFormat;
 import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
 import com.turtlehoarder.cobblemonchallenge.common.gui.LeadPokemonSelectionSession;
 import net.minecraft.ChatFormatting;
@@ -27,7 +28,7 @@ import java.util.UUID;
 
 public class ChallengeCommand {
 
-    public record ChallengeRequest(String id, ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, boolean preview, long createdTime) {}
+    public record ChallengeRequest(String id, ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, boolean preview, long createdTime, ChallengeFormat format) {}
     public record LeadPokemonSelection(LeadPokemonSelectionSession selectionWrapper, long createdTime) {}
 
     private static final float MAX_DISTANCE = CobblemonChallenge.MAX_CHALLENGE_DISTANCE;
@@ -40,64 +41,71 @@ public class ChallengeCommand {
     private static final HashMap<UUID, Long> LAST_SENT_CHALLENGE = new HashMap<>();
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        // Basic challenge command that initiates a challenge with the default challenge level
-        LiteralArgumentBuilder<CommandSourceStack> baseCommandBuilder = Commands.literal("challenge")
-                .then(Commands.argument("player", EntityArgument.player())
-                        .executes(c -> challengePlayer(c, DEFAULT_LEVEL, true)));
+        registerChallengeFormatCommand(dispatcher, "challenge", ChallengeFormat.STANDARD_6V6);
+        registerChallengeFormatCommand(dispatcher, "challenge3v3", ChallengeFormat.STANDARD_3V3);
+        registerChallengeFormatCommand(dispatcher, "challengedouble", ChallengeFormat.STANDARD_DOUBLES_6V6);
+        registerAcceptDenyCommands(dispatcher);
+    }
 
-        // Basic challenge command that initiates a challenge with the default challenge level
-        LiteralArgumentBuilder<CommandSourceStack> baseCommandBuilderNoPreview = Commands.literal("challenge")
-                .then(Commands.argument("player", EntityArgument.player())
-                        .then(Commands.literal("nopreview")
-                                .executes(c -> challengePlayer(c, DEFAULT_LEVEL, false))));
-
-
-        // Challenge command that initiates a challenge with a given level
-        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOption = Commands.literal("challenge")
-                .then(Commands.argument("player", EntityArgument.player())
-                        .then(Commands.literal("level")
-                                .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
-                                        .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), true)
-                                        )
-                                )
-                        )
-                );
-        // Challenge command that initiates a challenge with a given level
-        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOptionNoPreview = Commands.literal("challenge")
-                .then(Commands.argument("player", EntityArgument.player())
-                        .then(Commands.literal("level")
-                                .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
-                                        .then(Commands.literal("nopreview")
-                                                .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), false)
-                                                )
-                                        )
-                                )
-                        )
-                );
-
-        // Challenge command that initiates a challenge with a given level
-        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOptionNoPreviewBefore = Commands.literal("challenge")
-                .then(Commands.argument("player", EntityArgument.player())
-                        .then(Commands.literal("nopreview")
-                                .then(Commands.literal("level")
-                                        .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
-                                                .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), false)
-                                                )
-                                        )
-                                )
-                        )
-                );
-
+    private static void registerAcceptDenyCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
         // Command called to accept challenges
         LiteralArgumentBuilder<CommandSourceStack> commandBuilderAcceptChallenge = Commands.literal("acceptchallenge")
                 .then(Commands.argument("id", StringArgumentType.string()).executes(c -> acceptChallenge(c, StringArgumentType.getString(c, "id"))));
         // Command called to deny challenges
         LiteralArgumentBuilder<CommandSourceStack> commandBuilderRejectChallenge = Commands.literal("rejectchallenge")
                 .then(Commands.argument("id", StringArgumentType.string()).executes(c -> rejectChallenge(c, StringArgumentType.getString(c, "id"))));
-
-
         dispatcher.register(commandBuilderAcceptChallenge);
         dispatcher.register(commandBuilderRejectChallenge);
+    }
+
+    private static void registerChallengeFormatCommand(CommandDispatcher<CommandSourceStack> dispatcher, String baseCommand, ChallengeFormat resultingFormat) {
+        // Basic challenge command that initiates a challenge with the default challenge level
+        LiteralArgumentBuilder<CommandSourceStack> baseCommandBuilder = Commands.literal(baseCommand)
+                .then(Commands.argument("player", EntityArgument.player())
+                        .executes(c -> challengePlayer(c, DEFAULT_LEVEL, true, resultingFormat)));
+
+        // Basic challenge command that initiates a challenge with the default challenge level
+        LiteralArgumentBuilder<CommandSourceStack> baseCommandBuilderNoPreview = Commands.literal(baseCommand)
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.literal("nopreview")
+                                .executes(c -> challengePlayer(c, DEFAULT_LEVEL, false, resultingFormat))));
+
+
+        // Challenge command that initiates a challenge with a given level
+        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOption = Commands.literal(baseCommand)
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.literal("level")
+                                .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
+                                        .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), true, resultingFormat)
+                                        )
+                                )
+                        )
+                );
+        // Challenge command that initiates a challenge with a given level
+        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOptionNoPreview = Commands.literal(baseCommand)
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.literal("level")
+                                .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
+                                        .then(Commands.literal("nopreview")
+                                                .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), false, resultingFormat)
+                                                )
+                                        )
+                                )
+                        )
+                );
+
+        // Challenge command that initiates a challenge with a given level
+        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOptionNoPreviewBefore = Commands.literal(baseCommand)
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.literal("nopreview")
+                                .then(Commands.literal("level")
+                                        .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
+                                                .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), false, resultingFormat)
+                                                )
+                                        )
+                                )
+                        )
+                );
         dispatcher.register(commandBuilderWithLevelOption);
         // Register nopreview section
         dispatcher.register(commandBuilderWithLevelOptionNoPreview);
@@ -106,7 +114,7 @@ public class ChallengeCommand {
         dispatcher.register(baseCommandBuilder);
     }
 
-    public static int challengePlayer(CommandContext<CommandSourceStack> c, int level, boolean preview) {
+    public static int challengePlayer(CommandContext<CommandSourceStack> c, int level, boolean preview, ChallengeFormat format) {
         try {
             ServerPlayer challengerPlayer = c.getSource().getPlayer();
             ServerPlayer challengedPlayer = c.getArgument("player", EntitySelector.class).findSinglePlayer(c.getSource());
@@ -148,7 +156,7 @@ public class ChallengeCommand {
                 return 0;
             }
 
-            ChallengeRequest request = ChallengeUtil.createChallengeRequest(challengerPlayer, challengedPlayer, level, preview);
+            ChallengeRequest request = ChallengeUtil.createChallengeRequest(challengerPlayer, challengedPlayer, level, preview, ChallengeFormat.STANDARD_6V6);
             CHALLENGE_REQUESTS.put(request.id, request);
 
             String options = "";
