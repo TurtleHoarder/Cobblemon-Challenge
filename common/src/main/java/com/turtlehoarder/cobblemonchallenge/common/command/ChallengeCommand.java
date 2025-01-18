@@ -42,6 +42,7 @@ public class ChallengeCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         registerChallengeFormatCommand(dispatcher, "challenge", ChallengeFormat.STANDARD_6V6);
+        registerChallengeFormatCommand(dispatcher, "challenge1v1", ChallengeFormat.STANDARD_1V1);
         registerChallengeFormatCommand(dispatcher, "challenge3v3", ChallengeFormat.STANDARD_3V3);
         registerChallengeFormatCommand(dispatcher, "challengedouble", ChallengeFormat.STANDARD_DOUBLES_6V6);
         registerAcceptDenyCommands(dispatcher);
@@ -139,6 +140,11 @@ public class ChallengeCommand {
                 return 0;
             }
 
+            if (Cobblemon.INSTANCE.getStorage().getParty(challengerPlayer).occupied() < format.getTotalPokemonSelected()) {
+                c.getSource().sendFailure(Component.literal("You don't have enough pokemon for this format!"));
+                return 0;
+            }
+
             if (Cobblemon.INSTANCE.getStorage().getParty(challengerPlayer).occupied() == 0) {
                 c.getSource().sendFailure(Component.literal("Cannot send challenge while you have no pokemon!"));
                 return 0;
@@ -156,14 +162,14 @@ public class ChallengeCommand {
                 return 0;
             }
 
-            ChallengeRequest request = ChallengeUtil.createChallengeRequest(challengerPlayer, challengedPlayer, level, preview, ChallengeFormat.STANDARD_6V6);
+            ChallengeRequest request = ChallengeUtil.createChallengeRequest(challengerPlayer, challengedPlayer, level, preview, format);
             CHALLENGE_REQUESTS.put(request.id, request);
 
             String options = "";
             if (!request.preview()) {
                 options = ChatFormatting.GOLD + " [NoTeamPreview]";
             }
-            MutableComponent notificationComponent = Component.literal(ChatFormatting.YELLOW + String.format("You have been challenged to a " + ChatFormatting.BOLD + "level %d Pokemon battle" + ChatFormatting.RESET + ChatFormatting.YELLOW + " by %s!" + options, level, challengerPlayer.getDisplayName().getString()));            MutableComponent interactiveComponent = Component.literal("Click to accept or deny: ");
+            MutableComponent notificationComponent = Component.literal(ChatFormatting.YELLOW + String.format("You have been challenged to a " + ChatFormatting.BOLD + "level %d %s Pokemon battle" + ChatFormatting.RESET + ChatFormatting.YELLOW + " by %s!" + options, level, request.format.getTitle(), challengerPlayer.getDisplayName().getString()));            MutableComponent interactiveComponent = Component.literal("Click to accept or deny: ");
             interactiveComponent.append(Component.literal(ChatFormatting.GREEN + "Battle!").setStyle(Style.EMPTY.withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/acceptchallenge %s", request.id)))));
             interactiveComponent.append(Component.literal(" or "));
             interactiveComponent.append(Component.literal(ChatFormatting.RED + "Reject").setStyle(Style.EMPTY.withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/rejectchallenge %s", request.id)))));
@@ -226,6 +232,11 @@ public class ChallengeCommand {
 
             if (Cobblemon.INSTANCE.getStorage().getParty(request.challengerPlayer).occupied() == 0) {
                 c.getSource().sendFailure(Component.literal(String.format("Cannot accept challenge: %s has no pokemon... somehow!", request.challengerPlayer.getDisplayName().getString())));
+                return 0;
+            }
+
+            if (Cobblemon.INSTANCE.getStorage().getParty(request.challengedPlayer).occupied() < request.format.getTotalPokemonSelected()) {
+                c.getSource().sendFailure(Component.literal("Cannot accept challenge: You don't have enough pokemon for this format!"));
                 return 0;
             }
 

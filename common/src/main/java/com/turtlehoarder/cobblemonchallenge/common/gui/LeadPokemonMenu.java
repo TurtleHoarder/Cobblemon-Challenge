@@ -14,6 +14,7 @@ public class LeadPokemonMenu extends ChestMenu {
 
     private LeadPokemonMenuProvider menuProvider;
     private boolean isValid = true;
+
     public LeadPokemonMenu(LeadPokemonMenuProvider menuProvider, int pContainerId, Inventory pPlayerInventory) {
         super(MenuType.GENERIC_9x6, pContainerId, pPlayerInventory, new SimpleContainer(9 * 6), 6);
         this.menuProvider = menuProvider;
@@ -25,6 +26,7 @@ public class LeadPokemonMenu extends ChestMenu {
         menuProvider.onPlayerCloseContainer();
     }
 
+    // Just a shortcut to update multiple item slots at once
     public void setItemSlotMulti(ItemStack item, Integer... slots) {
         for (int slot : slots) {
             super.setItem(slot, this.getStateId(), item);
