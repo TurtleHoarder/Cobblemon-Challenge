@@ -229,7 +229,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                 pokemonFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as Pokemon #" + (selectedNumber + 1), selectedPokemon.getDisplayName().getString())));
                 List<Component> components = new ArrayList<>();
                 if (selectedNumber == 0) {
-                    components.add(Component.literal(String.format(ChatFormatting.  + "This is your lead")));
+                    components.add(Component.literal(String.format(ChatFormatting.GOLD  + "This is your lead")));
                 }
                 if (selectedSlots.size() < request.format().getTotalPokemonSelected()) {
                     components.add(Component.literal(String.format(ChatFormatting.YELLOW  + "Click to unselect pokemmon")));
