@@ -17,9 +17,7 @@ public class LeadPokemonSelectionSession {
     private final ChallengeCommand.ChallengeRequest originRequest;
     private final UUID uuid;
     public long creationTime;
-    private int pokemonToSelect = 1;
     private boolean timedOut = false;
-
     private boolean closedOut = false;
 
     public static Vector<LeadPokemonSelectionSession> SESSIONS_TO_CANCEL = new Vector<>();
@@ -58,13 +56,17 @@ public class LeadPokemonSelectionSession {
         }
     }
 
+    public void onPokemonUnselected(LeadPokemonMenuProvider menuProvider) {
+        getOtherMenu(menuProvider).updateRivalCount(menuProvider.selectedSlots.size());
+    }
+
     private void beginBattle() {
         SESSIONS_TO_CANCEL.add(this);
         challengerMenuProvider.forceCloseMenu();
         challengedMenuProvider.forceCloseMenu();
         ChallengeBattleBuilder challengeBuilder = new ChallengeBattleBuilder();
         try {
-            challengeBuilder.lvlxpvp(originRequest.challengerPlayer(), originRequest.challengedPlayer(),originRequest.level(), challengerMenuProvider.selectedSlots, challengedMenuProvider.selectedSlots);
+            challengeBuilder.lvlxpvp(originRequest.challengerPlayer(), originRequest.challengedPlayer(),originRequest.level(), challengerMenuProvider.selectedSlots, challengedMenuProvider.selectedSlots, originRequest.format());
         } catch (ChallengeBuilderException e) {
             e.printStackTrace();
         }
@@ -80,7 +82,7 @@ public class LeadPokemonSelectionSession {
 
     // TODO: Make this more flexible for formats like 3v3
     public int getMaxPokemonSelection() {
-        return pokemonToSelect;
+        return originRequest.format().getTotalPokemonSelected();
     }
 
     private LeadPokemonMenuProvider getOtherMenu(LeadPokemonMenuProvider menu) {

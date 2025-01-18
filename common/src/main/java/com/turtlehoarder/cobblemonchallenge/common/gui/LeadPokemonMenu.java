@@ -7,12 +7,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class LeadPokemonMenu extends ChestMenu {
 
     private LeadPokemonMenuProvider menuProvider;
     private boolean isValid = true;
+
     public LeadPokemonMenu(LeadPokemonMenuProvider menuProvider, int pContainerId, Inventory pPlayerInventory) {
         super(MenuType.GENERIC_9x6, pContainerId, pPlayerInventory, new SimpleContainer(9 * 6), 6);
         this.menuProvider = menuProvider;
@@ -22,6 +24,14 @@ public class LeadPokemonMenu extends ChestMenu {
     public void removed(Player pPlayer) {
         super.removed(pPlayer);
         menuProvider.onPlayerCloseContainer();
+    }
+
+    // Just a shortcut to update multiple item slots at once
+    public void setItemSlotMulti(ItemStack item, Integer... slots) {
+        for (int slot : slots) {
+            super.setItem(slot, this.getStateId(), item);
+        }
+
     }
 
     public void invalidateMenu() {
@@ -40,6 +50,8 @@ public class LeadPokemonMenu extends ChestMenu {
             } else {
                 if (pSlotId % 9 == 0) {
                     menuProvider.onSelectPokemonSlot(this, pSlotId / 9);
+                } else {
+                    menuProvider.onGeneralMenuClick(this, pSlotId);
                 }
             }
         }
