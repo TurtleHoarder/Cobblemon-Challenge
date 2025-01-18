@@ -228,7 +228,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                 // Small notification for letting players know they can deselect
                 pokemonFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as Pokemon #" + (selectedNumber + 1), selectedPokemon.getDisplayName().getString())));
                 List<Component> components = new ArrayList<>();
-                if (selectedNumber == 0) {
+                if (selectedNumber == 0 && request.format().getBattleType().getSlotsPerActor() == 1) {
                     components.add(Component.literal(String.format(ChatFormatting.GOLD  + "This is your lead")));
                 }
                 if (selectedSlots.size() < request.format().getTotalPokemonSelected()) {

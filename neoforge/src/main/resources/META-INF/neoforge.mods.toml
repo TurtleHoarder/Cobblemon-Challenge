@@ -9,7 +9,7 @@ version = "1.2.0"
 displayName = "Cobblemon Challenge"
 authors = "Turtlehoarder"
 description = '''Support for basic flat-level challenges in Cobblemon'''
-#logoFile = ""
+logoFile = "icon.png"
 
 [[dependencies.cobblemonchallenge]]
 modId = "neoforge"
