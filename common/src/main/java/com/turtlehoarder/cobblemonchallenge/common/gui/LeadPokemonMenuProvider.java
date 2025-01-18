@@ -169,7 +169,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                 leadPokemonMenu.setItem(21, leadPokemonMenu.getStateId(), pokemonFiller);
             }
             if (rivalSelectedPokemon == selectionSession.getMaxPokemonSelection()) {
-                ItemStack glassFiller = new ItemStack(Blocks.GLASS_PANE);
+                ItemStack glassFiller = new ItemStack(Blocks.WHITE_STAINED_GLASS_PANE);
                 setGlassDisplayName(glassFiller, timeLeft);
                 leadPokemonMenu.setItemSlotMulti(glassFiller, 23, 13, 31);
                 ItemStack pokeballFiller = new ItemStack(CobblemonItems.POKE_BALL.asItem());

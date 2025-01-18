@@ -27,7 +27,7 @@ public class ChallengeBattleBuilder {
             // I don't want to maintain my own version of battle initialization, so instead I'm going to leverage the partyAccessor function that's passed in.
             // Instead of pointing to Cobblemon storage for reference, we will create a fake party storage based off the parameters and then return that instead. BattleBuilder will handle the rest
             FakePartyAccessor accessor = new FakePartyAccessor(player1Selection, player2Selection, player1, player2, format);
-            BattleBuilder.INSTANCE.pvp1v1(player1, player2, p1Party.get(player1Selection.get(0)).getUuid(), p2Party.get(player2Selection.get(0)).getUuid(), bf, true, true, accessor)
+            BattleBuilder.INSTANCE.pvp1v1(player1, player2, null, null, bf, true, true, accessor)
                     .ifSuccessful(battle -> {
                         challengeBattles.add(battle); // Keep a list of challenge battles to keep track of
                         return Unit.INSTANCE;

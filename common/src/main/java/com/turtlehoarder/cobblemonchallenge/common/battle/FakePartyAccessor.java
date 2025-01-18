@@ -38,21 +38,23 @@ public class FakePartyAccessor implements Function1<ServerPlayer, PartyStore> {
     @Override
     public PartyStore invoke(ServerPlayer serverPlayer) {
         PartyStore originalPartyStore = Cobblemon.INSTANCE.getStorage().getParty(serverPlayer);
-        PlayerPartyStore challengeBattleStore = new PlayerPartyStore(serverPlayer.getUUID());
+        PartyStore challengeBattleStore = new PartyStore(UUID.randomUUID());
+        challengeBattleStore.setObserverUUIDs(List.of(serverPlayer.getUUID())); // Add observer so that the player gets updates
         Set<Integer> store = IntStream.rangeClosed(0, 5).boxed().collect(Collectors.toSet()); // Simple set from 0 to 5 in a fancy way
         List<Integer> slotSelection = getSelectionForThisPlayer(serverPlayer);
         for (int slotSelected : slotSelection) {
-            challengeBattleStore.add(originalPartyStore.get(slotSelected));
+            challengeBattleStore.add(originalPartyStore.get(slotSelected).clone(true)); // New UUID for the fake party store, or else cloning shenanigans can happen
             store.remove(slotSelected);
         }
         // If the format requires more pokemon than selected, add the rest
         if (format.getTotalPokemonSlots() > format.getTotalPokemonSelected()) {
             for (int remainingSlot : store) {
                 if (originalPartyStore.get(remainingSlot) != null)
-                    challengeBattleStore.add(originalPartyStore.get(remainingSlot));
+                    challengeBattleStore.add(originalPartyStore.get(remainingSlot).clone(true)); // New UUID for the fake party store, or else cloning shenanigans can happen
             }
         }
 
         return challengeBattleStore;
     }
+
 }
