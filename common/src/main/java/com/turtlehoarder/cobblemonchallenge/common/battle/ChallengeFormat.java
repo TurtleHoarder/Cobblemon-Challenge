@@ -10,7 +10,7 @@ public enum ChallengeFormat {
     STANDARD_3V3(3,3, "3v3", BattleTypes.INSTANCE.getSINGLES()),
     STANDARD_2V2(2, 2, "2v2", BattleTypes.INSTANCE.getSINGLES()),
     STANDARD_1V1(1,1, "1v1", BattleTypes.INSTANCE.getSINGLES()),
-    STANDARD_DOUBLES_6V6(6,2, "6v6 Doubles", BattleTypes.INSTANCE.getDOUBLES());
+    STANDARD_DOUBLES_6V6(6,2, "Doubles", BattleTypes.INSTANCE.getDOUBLES());
 
     private final int maxPokemonSlots; // Total number of pokemon in the battle
     private final int numberSelected; // Number of pokemon selected for battle

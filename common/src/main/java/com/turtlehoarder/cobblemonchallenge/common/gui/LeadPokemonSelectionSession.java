@@ -68,7 +68,8 @@ public class LeadPokemonSelectionSession {
         try {
             challengeBuilder.lvlxpvp(originRequest.challengerPlayer(), originRequest.challengedPlayer(),originRequest.level(), challengerMenuProvider.selectedSlots, challengedMenuProvider.selectedSlots, originRequest.format());
         } catch (ChallengeBuilderException e) {
-            e.printStackTrace();
+            originRequest.challengedPlayer().displayClientMessage(Component.literal(ChatFormatting.RED + "There was an error initializing the challenge"), false);
+            originRequest.challengerPlayer().displayClientMessage(Component.literal(ChatFormatting.RED + "There was an error initializing the challenge"), false);
         }
     }
 
@@ -80,7 +81,6 @@ public class LeadPokemonSelectionSession {
         return challengedMenuProvider.selectedSlots.size() == getMaxPokemonSelection() && challengerMenuProvider.selectedSlots.size() == getMaxPokemonSelection();
     }
 
-    // TODO: Make this more flexible for formats like 3v3
     public int getMaxPokemonSelection() {
         return originRequest.format().getTotalPokemonSelected();
     }

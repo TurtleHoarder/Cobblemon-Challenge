@@ -6,8 +6,8 @@ import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallengeCommonInter
 import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.common.event.ChallengeEventHandler;
 
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -16,7 +16,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
-@Mod(CobblemonChallenge.MODID)
+@Mod(value=CobblemonChallenge.MODID, dist= Dist.DEDICATED_SERVER)
 public class CobblemonChallengeForge extends CobblemonChallengeCommonInterface {
     private static ChallengeConfig config;
     private static ModConfigSpec commonSpec;

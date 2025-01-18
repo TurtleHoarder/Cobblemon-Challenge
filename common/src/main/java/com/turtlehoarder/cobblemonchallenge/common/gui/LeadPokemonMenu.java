@@ -10,6 +10,8 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class LeadPokemonMenu extends ChestMenu {
 
     private LeadPokemonMenuProvider menuProvider;
@@ -31,7 +33,12 @@ public class LeadPokemonMenu extends ChestMenu {
         for (int slot : slots) {
             super.setItem(slot, this.getStateId(), item);
         }
-
+    }
+    // Another for actual lists
+    public void setItemSlotMulti(ItemStack item, List<Integer> slots) {
+        for (int slot : slots) {
+            super.setItem(slot, this.getStateId(), item);
+        }
     }
 
     public void invalidateMenu() {

@@ -6,7 +6,6 @@ import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.item.PokemonItem;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.cobblemon.mod.common.util.LocalizationUtilsKt;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeFormat;
 import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
@@ -41,19 +40,6 @@ public class LeadPokemonMenuProvider implements MenuProvider {
     private MenuState menuState = MenuState.WAITING_FOR_BOTH;
     private LeadPokemonMenu openedMenu;
     public List<Integer> selectedSlots = new ArrayList<Integer>();
-    // Mappings of # pokemon selected and where in the menu to put it
-    // Maps for Doubles / 2v2s
-    Map<Integer, Integer> allySlotToMenuIDDoubles = Map.of(1,20,2,21);
-    Map<Integer, Integer> rivalSlotToMenuIDDoubles = Map.of(1,23,2,24);
-    // Maps for 3v3
-    Map<Integer, Integer> allySlotToMenuID3v3 = Map.of(1,12,2,21,3,30);
-    Map<Integer, Integer> rivalSlotToMenuID3v3 = Map.of(1,13,2,22,3,31);
-    // Maps for 4v4
-    Map<Integer, Integer> allySlotToMenuID4v4 = Map.of(1,12,2,21,3,30, 4, 39);
-    Map<Integer, Integer> rivalSlotToMenuID4v4 = Map.of(1,13,2,22,3,31, 4, 40);
-    // Maps for 5v5
-    Map<Integer, Integer> allySlotToMenuID5v5 = Map.of(1,12,2,21,3,30, 4, 39, 5, 48);
-    Map<Integer, Integer> rivalSlotToMenuID5v5 = Map.of(1,13,2,22,3,31, 4, 40, 5, 49);
 
     private ChallengeCommand.ChallengeRequest request;
 
@@ -120,28 +106,6 @@ public class LeadPokemonMenuProvider implements MenuProvider {
         }
     }
 
-    private Map<Integer, Integer> getPositionAllyMap() {
-        return switch (request.format().getTotalPokemonSelected()) {
-            case 5 -> allySlotToMenuID5v5;
-            case 4 -> allySlotToMenuID4v4;
-            case 3 -> allySlotToMenuID3v3;
-            case 2 -> allySlotToMenuIDDoubles;
-            case 1 -> Collections.emptyMap();
-            default -> null;
-        };
-    }
-
-    private Map<Integer, Integer> getPositionRivalMap() {
-        return switch (request.format().getTotalPokemonSelected()) {
-            case 5 -> rivalSlotToMenuID5v5;
-            case 4 -> rivalSlotToMenuID4v4;
-            case 3 -> rivalSlotToMenuID3v3;
-            case 2 -> rivalSlotToMenuIDDoubles;
-            case 1 -> Collections.emptyMap();
-            default -> null;
-        };
-    }
-
     private void setGlassDisplayName(ItemStack s, int secondsLeft) {
         s.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.AQUA + String.format("Seconds left to choose: %d", secondsLeft)));
         ItemLore glassLoreTag = generateLoreTagForGlass(s);
@@ -195,8 +159,8 @@ public class LeadPokemonMenuProvider implements MenuProvider {
     private void setupPokemonSelection(LeadPokemonMenu leadPokemonMenu) {
         int timeLeft = (int) Math.ceil(((selectionSession.creationTime + LeadPokemonSelectionSession.LEAD_TIMEOUT_MILLIS) - System.currentTimeMillis()) / 1000f);
         if (request.format().getTotalPokemonSelected() == 1) { // Do special effects for single-selection of pokemon
-             if (selectedSlots.size() > 0) {
-                Pokemon selectedPokemon = p1Party.get(selectedSlots.get(0));
+             if (!selectedSlots.isEmpty()) {
+                Pokemon selectedPokemon = p1Party.get(selectedSlots.getFirst());
                 ItemStack glassFiller = new ItemStack(ChallengeUtil.getDisplayBlockForPokemon(selectedPokemon));
                 setGlassDisplayName(glassFiller, timeLeft);
                 leadPokemonMenu.setItemSlotMulti(glassFiller, 12, 30, 20);
@@ -214,8 +178,8 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                 leadPokemonMenu.setItem(22, leadPokemonMenu.getStateId(), pokeballFiller);
             }
         } else { // For other formats, refer to the maps
-            Map<Integer, Integer> allySlotMap = getPositionAllyMap();
-            Map<Integer, Integer> rivalSlotMap = getPositionRivalMap();
+            Map<Integer, Integer> allySlotMap = LeadPokemonStaticMappings.getPositionAllyMap(request);
+            Map<Integer, Integer> rivalSlotMap = LeadPokemonStaticMappings.getPositionRivalMap(request);
             for (int rivalSelectedNumber = 0; rivalSelectedNumber < rivalSelectedPokemon; rivalSelectedNumber++) {
                 ItemStack pokeballFiller = new ItemStack(CobblemonItems.POKE_BALL.asItem());
                 pokeballFiller.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
@@ -237,12 +201,25 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                 pokemonFiller.set(DataComponents.LORE, new ItemLore(components));
                 leadPokemonMenu.setItem(allySlotMap.get(selectedNumber + 1), leadPokemonMenu.getStateId(), pokemonFiller);
             }
+
+            // Do lock-in glass items:
+            ItemStack lockinGlassFillerAlly = new ItemStack(Blocks.WHITE_STAINED_GLASS_PANE);
+            ItemStack lockinGlassFillerRival = new ItemStack(Blocks.WHITE_STAINED_GLASS_PANE);
+            setGlassDisplayName(lockinGlassFillerAlly, timeLeft);
+            setGlassDisplayName(lockinGlassFillerRival, timeLeft);
+
+            if (isLockedIn()) {
+                leadPokemonMenu.setItemSlotMulti(lockinGlassFillerAlly, LeadPokemonStaticMappings.getLockinGlassPositionAlly(request));
+            }
+            if (isRivalLockedIn()) {
+                leadPokemonMenu.setItemSlotMulti(lockinGlassFillerRival, LeadPokemonStaticMappings.getLockinGlassPositionRival(request));
+            }
         }
     }
 
     protected void onGeneralMenuClick(LeadPokemonMenu menu, int pSlotId) {
         // Check unclick / undo for unfinished selections
-        Map<Integer, Integer> allyMap = getPositionAllyMap();
+        Map<Integer, Integer> allyMap = LeadPokemonStaticMappings.getPositionAllyMap(request);
         Collection<Integer> possiblePositions = allyMap.values(); // Possible slots to be clicked on
         if (possiblePositions != null && possiblePositions.contains(pSlotId)) {
             if (selectedSlots.size() < request.format().getTotalPokemonSelected()) { // If all pokemon haven't been selected yet...
@@ -309,5 +286,14 @@ public class LeadPokemonMenuProvider implements MenuProvider {
     public void updateRivalCount(int newCount) {
         this.rivalSelectedPokemon = newCount;
         updateMenuState();
+    }
+
+    private boolean isRivalLockedIn() {
+        return rivalSelectedPokemon == request.format().getTotalPokemonSelected();
+    }
+
+    // Quick method to see if player is locked-in / has all pokemon selected
+    private boolean isLockedIn() {
+        return selectedSlots.size() == request.format().getTotalPokemonSelected();
     }
 }
