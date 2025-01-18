@@ -34,7 +34,6 @@ public class ChallengeCommand {
     private static final float MAX_DISTANCE = CobblemonChallenge.MAX_CHALLENGE_DISTANCE;
     private static final boolean USE_DISTANCE_RESTRICTION = CobblemonChallenge.CHALLENGE_DISTANCE_RESTRICTION;
     private static final int DEFAULT_LEVEL = CobblemonChallenge.DEFAULT_CHALLENGE_LEVEL;
-    private static final int DEFAULT_HANDICAP = CobblemonChallenge.DEFAULT_HANDICAP;
     private static final int CHALLENGE_COOLDOWN = CobblemonChallenge.CHALLENGE_COOLDOWN_MILLIS;
     public static HashMap<String, ChallengeRequest> CHALLENGE_REQUESTS = new HashMap<>();
     public static final HashMap<UUID, LeadPokemonSelection> ACTIVE_SELECTIONS = new HashMap<>();
@@ -43,7 +42,11 @@ public class ChallengeCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         registerChallengeFormatCommand(dispatcher, "challenge", ChallengeFormat.STANDARD_6V6);
         registerChallengeFormatCommand(dispatcher, "challenge1v1", ChallengeFormat.STANDARD_1V1);
+        registerChallengeFormatCommand(dispatcher, "challenge2v2", ChallengeFormat.STANDARD_2V2);
         registerChallengeFormatCommand(dispatcher, "challenge3v3", ChallengeFormat.STANDARD_3V3);
+        registerChallengeFormatCommand(dispatcher, "challenge4v4", ChallengeFormat.STANDARD_4V4);
+        registerChallengeFormatCommand(dispatcher, "challenge5v5", ChallengeFormat.STANDARD_5V5);
+        registerChallengeFormatCommand(dispatcher, "challenge6v6", ChallengeFormat.STANDARD_6V6);
         registerChallengeFormatCommand(dispatcher, "challengedouble", ChallengeFormat.STANDARD_DOUBLES_6V6);
         registerAcceptDenyCommands(dispatcher);
     }

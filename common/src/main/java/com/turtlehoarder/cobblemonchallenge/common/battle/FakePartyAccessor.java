@@ -39,7 +39,7 @@ public class FakePartyAccessor implements Function1<ServerPlayer, PartyStore> {
     public PartyStore invoke(ServerPlayer serverPlayer) {
         PartyStore originalPartyStore = Cobblemon.INSTANCE.getStorage().getParty(serverPlayer);
         PlayerPartyStore challengeBattleStore = new PlayerPartyStore(serverPlayer.getUUID());
-        Set<Integer> store = IntStream.rangeClosed(0, 5).boxed().collect(Collectors.toSet()); // Simple set from 1 to 6 in a fancy way
+        Set<Integer> store = IntStream.rangeClosed(0, 5).boxed().collect(Collectors.toSet()); // Simple set from 0 to 5 in a fancy way
         List<Integer> slotSelection = getSelectionForThisPlayer(serverPlayer);
         for (int slotSelected : slotSelection) {
             challengeBattleStore.add(originalPartyStore.get(slotSelected));

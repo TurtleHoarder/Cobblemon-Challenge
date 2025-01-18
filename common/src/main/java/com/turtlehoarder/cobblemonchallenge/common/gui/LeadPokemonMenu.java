@@ -50,6 +50,8 @@ public class LeadPokemonMenu extends ChestMenu {
             } else {
                 if (pSlotId % 9 == 0) {
                     menuProvider.onSelectPokemonSlot(this, pSlotId / 9);
+                } else {
+                    menuProvider.onGeneralMenuClick(this, pSlotId);
                 }
             }
         }

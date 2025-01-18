@@ -56,6 +56,10 @@ public class LeadPokemonSelectionSession {
         }
     }
 
+    public void onPokemonUnselected(LeadPokemonMenuProvider menuProvider) {
+        getOtherMenu(menuProvider).updateRivalCount(menuProvider.selectedSlots.size());
+    }
+
     private void beginBattle() {
         SESSIONS_TO_CANCEL.add(this);
         challengerMenuProvider.forceCloseMenu();

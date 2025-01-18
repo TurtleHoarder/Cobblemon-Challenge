@@ -48,7 +48,6 @@ public class ChallengeEventHandler {
      */
     public static boolean registerPostVictoryEvent() {
         CobblemonEvents.BATTLE_VICTORY.subscribe(Priority.NORMAL, (battleVictoryEvent) -> {
-            CobblemonChallenge.LOGGER.debug("Battle victory!");
             UUID battleId = battleVictoryEvent.getBattle().getBattleId();
             // Send victory message to victor
             if (ChallengeUtil.isBattleChallenge(battleId)) {
@@ -142,7 +141,6 @@ public class ChallengeEventHandler {
             while (cancelSessions.hasNext()) {
                 LeadPokemonSelectionSession session = cancelSessions.next();
                 ChallengeCommand.ACTIVE_SELECTIONS.remove(session.getUuid());
-                CobblemonChallenge.LOGGER.info(String.format("Removing hanging session. Size remaining: %d | %d", ChallengeCommand.ACTIVE_SELECTIONS.size(), LeadPokemonSelectionSession.SESSIONS_TO_CANCEL.size()));
                 cancelSessions.remove();
             }
         }
