@@ -1,7 +1,9 @@
 package com.turtlehoarder.cobblemonchallenge.common.battle;
 
 import com.cobblemon.mod.common.Cobblemon;
+import com.cobblemon.mod.common.CobblemonNetwork;
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
+import com.cobblemon.mod.common.net.messages.client.storage.party.InitializePartyPacket;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import kotlin.jvm.functions.Function1;
 import com.cobblemon.mod.common.api.storage.party.PartyStore;
@@ -38,7 +40,11 @@ public class FakePartyAccessor implements Function1<ServerPlayer, PartyStore> {
     @Override
     public PartyStore invoke(ServerPlayer serverPlayer) {
         PartyStore originalPartyStore = Cobblemon.INSTANCE.getStorage().getParty(serverPlayer);
-        PartyStore challengeBattleStore = new PartyStore(UUID.randomUUID());
+        UUID challengeBattleStoreUUID = UUID.randomUUID();
+        PartyStore challengeBattleStore = new PartyStore(challengeBattleStoreUUID);
+        // We send this packet to let the client know about this fake store we created. While not necessary directly for base-Cobblemon, some plugins, such as Flourish
+        // need to know the store information for Mega-Evolution and such.
+        CobblemonNetwork.INSTANCE.sendPacketToPlayer(serverPlayer, new InitializePartyPacket(false, challengeBattleStoreUUID, format.getTotalPokemonSlots()));
         challengeBattleStore.setObserverUUIDs(List.of(serverPlayer.getUUID())); // Add observer so that the player gets updates
         Set<Integer> store = IntStream.rangeClosed(0, 5).boxed().collect(Collectors.toSet()); // Simple set from 0 to 5 in a fancy way
         List<Integer> slotSelection = getSelectionForThisPlayer(serverPlayer);
