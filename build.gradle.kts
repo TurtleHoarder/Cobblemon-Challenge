@@ -11,7 +11,7 @@ allprojects {
     apply(plugin = "java")
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
-    version = "2.0.1"
+    version = "2.1.0"
     group = project.properties["maven_group"]!!
 
 
