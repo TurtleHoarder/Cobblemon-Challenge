@@ -48,6 +48,12 @@ public class ChallengeCommand {
         registerChallengeFormatCommand(dispatcher, "challenge5v5", ChallengeFormat.STANDARD_5V5);
         registerChallengeFormatCommand(dispatcher, "challenge6v6", ChallengeFormat.STANDARD_6V6);
         registerChallengeFormatCommand(dispatcher, "challengedouble", ChallengeFormat.STANDARD_DOUBLES_6V6);
+        registerChallengeFormatCommand(dispatcher, "challengedouble2v2", ChallengeFormat.STANDARD_DOUBLES_2v2);
+        registerChallengeFormatCommand(dispatcher, "challengedouble3v3", ChallengeFormat.STANDARD_DOUBLES_3v3);
+        registerChallengeFormatCommand(dispatcher, "challengedouble4v4", ChallengeFormat.STANDARD_DOUBLES_4v4);
+        registerChallengeFormatCommand(dispatcher, "challengedouble5v5", ChallengeFormat.STANDARD_DOUBLES_5V5);
+        registerChallengeFormatCommand(dispatcher, "challengedouble6v6", ChallengeFormat.STANDARD_DOUBLES_6V6);
+
         registerAcceptDenyCommands(dispatcher);
     }
 
