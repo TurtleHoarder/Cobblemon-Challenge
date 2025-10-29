@@ -5,11 +5,14 @@ license = "MIT License"
 
 [[mods]]
 modId = "cobblemonchallenge"
-version = "2.2.0"
+version = "2.3.0"
 displayName = "Cobblemon Challenge"
 authors = "Turtlehoarder"
 description = '''Support for basic flat-level challenges in Cobblemon'''
 logoFile = "icon.png"
+
+[[mixins]]
+config="mixins.cobblemon-challenge-common.json"
 
 [[dependencies.cobblemonchallenge]]
 modId = "neoforge"

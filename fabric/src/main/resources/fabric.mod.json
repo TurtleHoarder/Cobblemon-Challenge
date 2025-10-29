@@ -13,6 +13,11 @@
     "sources": "https://github.com/TurtleHoarder/Cobblemon-Challenge/issues"
   },
 
+  "mixins": [
+    "mixins.cobblemon-challenge-common.json"
+  ],
+
+
   "license": "MIT",
   "icon": "icon.png",
 

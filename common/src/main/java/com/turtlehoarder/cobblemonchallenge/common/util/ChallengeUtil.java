@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.Blocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class ChallengeUtil {
@@ -58,6 +59,14 @@ public class ChallengeUtil {
 
     public static boolean isBattleChallenge(UUID battleId) {
         return ChallengeBattleBuilder.challengeBattles.stream().anyMatch(battle -> battle.getBattleId().equals(battleId));
+    }
+
+    public static PokemonBattle getBattleFromBattleId(UUID battleId) {
+        for (PokemonBattle pb : ChallengeBattleBuilder.challengeBattles) {
+            if (pb.getBattleId().equals(battleId))
+                return pb;
+        }
+        return null;
     }
 
     public static boolean isPlayerOnline(ServerPlayer player) {

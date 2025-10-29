@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "com.turtlehoarder.cobblemonchallenge.common.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "mixins": [],
+  "injectors": {},
+  "client": [],
+  "server": [
+    "battles.CallerMixin",
+    "battles.SecondCallerMixin"
+  ]
+}
