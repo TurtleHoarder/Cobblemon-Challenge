@@ -79,7 +79,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
             BattlePokemon copy = BattlePokemon.Companion.safeCopyOf(pokemon);
             pokemon = ChallengeUtil.applyFormatTransformations(ChallengeFormat.STANDARD_6V6, copy, request.level()).getEffectedPokemon(); // Apply battle transformations to each pokemon
             ItemStack pokemonItem = PokemonItem.from(pokemon, 1);
-            pokemonItem.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.AQUA + String.format("%s (lvl%d)", pokemon.getDisplayName().getString(), request.level())));
+            pokemonItem.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.AQUA + String.format("%s (lvl%d)", pokemon.getDisplayName(false).getString(), request.level())));
             ItemLore pokemonLoreTag = ChallengeUtil.generateLoreTagForPokemon(pokemon);
 
             pokemonItem.set(DataComponents.LORE, pokemonLoreTag);
@@ -95,7 +95,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
             }
             if (selectionSession.teamPreviewOn()) {
                 ItemStack pokemonItem = PokemonItem.from(pokemon, 1);
-                pokemonItem.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.RED + String.format("%s's %s (lvl%d)", rival.getDisplayName().getString(), pokemon.getDisplayName().getString(), request.level())));
+                pokemonItem.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.RED + String.format("%s's %s (lvl%d)", rival.getDisplayName().getString(), pokemon.getDisplayName(false).getString(), request.level())));
                 leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
             } else {
                 ItemStack pokemonItem = new ItemStack(CobblemonItems.POKE_BALL.asItem());
@@ -165,7 +165,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                 setGlassDisplayName(glassFiller, timeLeft);
                 leadPokemonMenu.setItemSlotMulti(glassFiller, 12, 30, 20);
                 ItemStack pokemonFiller = PokemonItem.from(selectedPokemon, 1);
-                pokemonFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as your lead", selectedPokemon.getDisplayName().getString())));
+                pokemonFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as your lead", selectedPokemon.getDisplayName(false).getString())));
                 leadPokemonMenu.setItem(21, leadPokemonMenu.getStateId(), pokemonFiller);
             }
             if (rivalSelectedPokemon == selectionSession.getMaxPokemonSelection()) {
@@ -190,7 +190,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                 Pokemon selectedPokemon = p1Party.get(selectedSlots.get(selectedNumber));
                 ItemStack pokemonFiller = PokemonItem.from(selectedPokemon, 1);
                 // Small notification for letting players know they can deselect
-                pokemonFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as Pokemon #" + (selectedNumber + 1), selectedPokemon.getDisplayName().getString())));
+                pokemonFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as Pokemon #" + (selectedNumber + 1), selectedPokemon.getDisplayName(false).getString())));
                 List<Component> components = new ArrayList<>();
                 if (selectedNumber == 0 && request.format().getBattleType().getSlotsPerActor() == 1) {
                     components.add(Component.literal(String.format(ChatFormatting.GOLD  + "This is your lead")));

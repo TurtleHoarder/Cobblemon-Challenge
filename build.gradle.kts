@@ -1,9 +1,9 @@
 plugins {
     id("java")
     id("java-library")
-    kotlin("jvm") version("2.0.0")
+    kotlin("jvm") version("2.2.0")
 
-    id("dev.architectury.loom") version("1.7-SNAPSHOT") apply false
+    id("dev.architectury.loom") version("1.10.433") apply false
     id("architectury-plugin") version("3.4-SNAPSHOT") apply false
 }
 
@@ -11,7 +11,7 @@ allprojects {
     apply(plugin = "java")
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
-    version = "2.3.0"
+    version = "2.4.0"
     group = project.properties["maven_group"]!!
 
 

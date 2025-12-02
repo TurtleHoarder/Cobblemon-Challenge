@@ -7,7 +7,6 @@
   "injectors": {},
   "client": [],
   "server": [
-    "battles.CallerMixin",
-    "battles.SecondCallerMixin"
+    "battles.ThrowoutChallengeMixin"
   ]
 }
