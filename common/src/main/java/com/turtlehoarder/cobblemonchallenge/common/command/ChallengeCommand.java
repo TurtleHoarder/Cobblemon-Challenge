@@ -2,12 +2,13 @@ package com.turtlehoarder.cobblemonchallenge.common.command;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.battles.BattleRegistry;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeFormat;
 import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
@@ -24,12 +25,131 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class ChallengeCommand {
 
     public record ChallengeRequest(String id, ServerPlayer challengerPlayer, ServerPlayer challengedPlayer, int level, boolean preview, long createdTime, ChallengeFormat format) {}
     public record LeadPokemonSelection(LeadPokemonSelectionSession selectionWrapper, long createdTime) {}
+
+    /**
+     * Holds parsed challenge options. Add new fields here to extend functionality.
+     */
+    public static class ChallengeOptions {
+        private int level;
+        private boolean preview = true;
+        private String parseError = null;
+
+        public ChallengeOptions(int defaultLevel) {
+            this.level = defaultLevel;
+        }
+
+        public int getLevel() { return level; }
+        public boolean hasPreview() { return preview; }
+        public String getParseError() { return parseError; }
+        public boolean hasError() { return parseError != null; }
+
+        /**
+         * Parse tokens like "level 50 nopreview" in any order.
+         * Add new option keywords to the switch statement to extend.
+         */
+        public static ChallengeOptions parse(String input, int defaultLevel) {
+            ChallengeOptions options = new ChallengeOptions(defaultLevel);
+            if (input == null || input.isBlank()) return options;
+
+            String[] tokens = input.trim().split("\\s+");
+            for (int i = 0; i < tokens.length; i++) {
+                String token = tokens[i].toLowerCase();
+                switch (token) {
+                    case "nopreview" -> options.preview = false;
+                    case "level" -> {
+                        if (i + 1 < tokens.length) {
+                            try {
+                                int lvl = Integer.parseInt(tokens[++i]);
+                                if (lvl < 1 || lvl > 100) {
+                                    options.parseError = "Level must be between 1 and 100";
+                                    return options;
+                                }
+                                options.level = lvl;
+                            } catch (NumberFormatException e) {
+                                options.parseError = "Invalid level number: " + tokens[i];
+                                return options;
+                            }
+                        } else {
+                            options.parseError = "Missing level value after 'level'";
+                            return options;
+                        }
+                    }
+                    // Add future options here:
+                    // case "handicap" -> { ... }
+                    // case "timed" -> { ... }
+                    default -> {
+                        // Ignore unknown tokens to allow for typos or future compatibility
+                    }
+                }
+            }
+            return options;
+        }
+    }
+
+    /**
+     * Provides context-aware autocomplete suggestions for challenge options.
+     * Suggests keywords that haven't been used yet in the current input.
+     */
+    public static class ChallengeOptionsSuggestionProvider implements SuggestionProvider<CommandSourceStack> {
+        private static final Set<String> KEYWORDS = Set.of("level", "nopreview");
+
+        @Override
+        public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+            String remaining = builder.getRemaining();
+            String remainingLower = remaining.toLowerCase();
+
+            // Determine which keywords have already been used via exact token matching
+            String[] allTokens = remainingLower.trim().isEmpty() ? new String[0] : remainingLower.trim().split("\\s+");
+            Set<String> usedKeywords = new HashSet<>();
+            for (String keyword : KEYWORDS) {
+                for (String token : allTokens) {
+                    if (token.equals(keyword)) {
+                        usedKeywords.add(keyword);
+                    }
+                }
+            }
+
+            // Create a builder offset to the last word boundary so suggestions only replace the current token
+            int lastSpaceInInput = builder.getInput().lastIndexOf(' ');
+            SuggestionsBuilder tokenBuilder = builder.createOffset(Math.max(lastSpaceInInput + 1, builder.getStart()));
+            String currentToken = tokenBuilder.getRemaining().toLowerCase();
+
+            // Determine the previous completed token
+            boolean endsWithSpace = remaining.endsWith(" ");
+            String prevToken = "";
+            if (endsWithSpace && allTokens.length >= 1) {
+                prevToken = allTokens[allTokens.length - 1];
+            } else if (!endsWithSpace && allTokens.length >= 2) {
+                prevToken = allTokens[allTokens.length - 2];
+            }
+
+            // If previous token was "level", suggest example level numbers
+            if (prevToken.equals("level")) {
+                tokenBuilder.suggest("100");
+                tokenBuilder.suggest("50");
+                tokenBuilder.suggest("1");
+                return tokenBuilder.buildFuture();
+            }
+
+            // Suggest unused keywords matching current partial input
+            for (String keyword : KEYWORDS) {
+                if (!usedKeywords.contains(keyword) && keyword.startsWith(currentToken)) {
+                    tokenBuilder.suggest(keyword);
+                }
+            }
+
+            return tokenBuilder.buildFuture();
+        }
+    }
 
     private static final float MAX_DISTANCE = CobblemonChallenge.MAX_CHALLENGE_DISTANCE;
     private static final boolean USE_DISTANCE_RESTRICTION = CobblemonChallenge.CHALLENGE_DISTANCE_RESTRICTION;
@@ -59,73 +179,47 @@ public class ChallengeCommand {
 
     private static void registerAcceptDenyCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
         // Command called to accept challenges
-        LiteralArgumentBuilder<CommandSourceStack> commandBuilderAcceptChallenge = Commands.literal("acceptchallenge")
-                .then(Commands.argument("id", StringArgumentType.string()).executes(c -> acceptChallenge(c, StringArgumentType.getString(c, "id"))));
+        dispatcher.register(Commands.literal("acceptchallenge")
+                .then(Commands.argument("id", StringArgumentType.string())
+                        .executes(c -> acceptChallenge(c, StringArgumentType.getString(c, "id")))));
+
         // Command called to deny challenges
-        LiteralArgumentBuilder<CommandSourceStack> commandBuilderRejectChallenge = Commands.literal("rejectchallenge")
-                .then(Commands.argument("id", StringArgumentType.string()).executes(c -> rejectChallenge(c, StringArgumentType.getString(c, "id"))));
-        dispatcher.register(commandBuilderAcceptChallenge);
-        dispatcher.register(commandBuilderRejectChallenge);
+        dispatcher.register(Commands.literal("rejectchallenge")
+                .then(Commands.argument("id", StringArgumentType.string())
+                        .executes(c -> rejectChallenge(c, StringArgumentType.getString(c, "id")))));
     }
+
+    private static final SuggestionProvider<CommandSourceStack> OPTIONS_SUGGESTIONS = new ChallengeOptionsSuggestionProvider();
 
     private static void registerChallengeFormatCommand(CommandDispatcher<CommandSourceStack> dispatcher, String baseCommand, ChallengeFormat resultingFormat) {
-        // Basic challenge command that initiates a challenge with the default challenge level
-        LiteralArgumentBuilder<CommandSourceStack> baseCommandBuilder = Commands.literal(baseCommand)
+        dispatcher.register(Commands.literal(baseCommand)
                 .then(Commands.argument("player", EntityArgument.player())
-                        .executes(c -> challengePlayer(c, DEFAULT_LEVEL, true, resultingFormat)));
-
-        // Basic challenge command that initiates a challenge with the default challenge level
-        LiteralArgumentBuilder<CommandSourceStack> baseCommandBuilderNoPreview = Commands.literal(baseCommand)
-                .then(Commands.argument("player", EntityArgument.player())
-                        .then(Commands.literal("nopreview")
-                                .executes(c -> challengePlayer(c, DEFAULT_LEVEL, false, resultingFormat))));
-
-
-        // Challenge command that initiates a challenge with a given level
-        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOption = Commands.literal(baseCommand)
-                .then(Commands.argument("player", EntityArgument.player())
-                        .then(Commands.literal("level")
-                                .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
-                                        .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), true, resultingFormat)
-                                        )
-                                )
+                        // No options - use defaults
+                        .executes(c -> challengePlayer(c, ChallengeOptions.parse(null, DEFAULT_LEVEL), resultingFormat))
+                        // Optional greedy string for options in any order (e.g., "level 50 nopreview")
+                        .then(Commands.argument("options", StringArgumentType.greedyString())
+                                .suggests(OPTIONS_SUGGESTIONS)
+                                .executes(c -> {
+                                    String optionsStr = StringArgumentType.getString(c, "options");
+                                    ChallengeOptions options = ChallengeOptions.parse(optionsStr, DEFAULT_LEVEL);
+                                    return challengePlayer(c, options, resultingFormat);
+                                })
                         )
-                );
-        // Challenge command that initiates a challenge with a given level
-        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOptionNoPreview = Commands.literal(baseCommand)
-                .then(Commands.argument("player", EntityArgument.player())
-                        .then(Commands.literal("level")
-                                .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
-                                        .then(Commands.literal("nopreview")
-                                                .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), false, resultingFormat)
-                                                )
-                                        )
-                                )
-                        )
-                );
-
-        // Challenge command that initiates a challenge with a given level
-        LiteralArgumentBuilder<CommandSourceStack> commandBuilderWithLevelOptionNoPreviewBefore = Commands.literal(baseCommand)
-                .then(Commands.argument("player", EntityArgument.player())
-                        .then(Commands.literal("nopreview")
-                                .then(Commands.literal("level")
-                                        .then(Commands.argument("setLevelTo", IntegerArgumentType.integer(1,100))
-                                                .executes(c -> challengePlayer(c, IntegerArgumentType.getInteger(c, "setLevelTo"), false, resultingFormat)
-                                                )
-                                        )
-                                )
-                        )
-                );
-        dispatcher.register(commandBuilderWithLevelOption);
-        // Register nopreview section
-        dispatcher.register(commandBuilderWithLevelOptionNoPreview);
-        dispatcher.register(baseCommandBuilderNoPreview);
-        dispatcher.register(commandBuilderWithLevelOptionNoPreviewBefore);
-        dispatcher.register(baseCommandBuilder);
+                )
+        );
     }
 
-    public static int challengePlayer(CommandContext<CommandSourceStack> c, int level, boolean preview, ChallengeFormat format) {
+    public static int challengePlayer(CommandContext<CommandSourceStack> c, ChallengeOptions options, ChallengeFormat format) {
         try {
+            // Check for parsing errors first
+            if (options.hasError()) {
+                c.getSource().sendFailure(Component.literal(options.getParseError()));
+                return 0;
+            }
+
+            int level = options.getLevel();
+            boolean preview = options.hasPreview();
+
             ServerPlayer challengerPlayer = c.getSource().getPlayer();
             ServerPlayer challengedPlayer = c.getArgument("player", EntitySelector.class).findSinglePlayer(c.getSource());
 
@@ -174,11 +268,12 @@ public class ChallengeCommand {
             ChallengeRequest request = ChallengeUtil.createChallengeRequest(challengerPlayer, challengedPlayer, level, preview, format);
             CHALLENGE_REQUESTS.put(request.id, request);
 
-            String options = "";
+            String optionsText = "";
             if (!request.preview()) {
-                options = ChatFormatting.GOLD + " [NoTeamPreview]";
+                optionsText = ChatFormatting.GOLD + " [NoTeamPreview]";
             }
-            MutableComponent notificationComponent = Component.literal(ChatFormatting.YELLOW + String.format("You have been challenged to a " + ChatFormatting.BOLD + "level %d %s Pokemon battle" + ChatFormatting.RESET + ChatFormatting.YELLOW + " by %s!" + options, level, request.format.getTitle(), challengerPlayer.getDisplayName().getString()));            MutableComponent interactiveComponent = Component.literal("Click to accept or deny: ");
+            MutableComponent notificationComponent = Component.literal(ChatFormatting.YELLOW + String.format("You have been challenged to a " + ChatFormatting.BOLD + "level %d %s Pokemon battle" + ChatFormatting.RESET + ChatFormatting.YELLOW + " by %s!" + optionsText, level, request.format.getTitle(), challengerPlayer.getDisplayName().getString()));
+            MutableComponent interactiveComponent = Component.literal("Click to accept or deny: ");
             interactiveComponent.append(Component.literal(ChatFormatting.GREEN + "Battle!").setStyle(Style.EMPTY.withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/acceptchallenge %s", request.id)))));
             interactiveComponent.append(Component.literal(" or "));
             interactiveComponent.append(Component.literal(ChatFormatting.RED + "Reject").setStyle(Style.EMPTY.withBold(true).withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, String.format("/rejectchallenge %s", request.id)))));
