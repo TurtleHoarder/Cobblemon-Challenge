@@ -8,6 +8,7 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.util.LocalizationUtilsKt;
 import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
+import com.turtlehoarder.cobblemonchallenge.common.battle.BattlePeekTracker;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeFormat;
 import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
@@ -150,5 +151,34 @@ public class ChallengeUtil {
     public static int getBattlePokemonAdjustedLevel(int actualLevel, int minLevel, int maxLevel, int handicap) {
         int adjustedLevel = (actualLevel < minLevel) ? minLevel + handicap : Math.min(actualLevel, maxLevel) + handicap;
         return (adjustedLevel < 1) ? 1 : Math.min(adjustedLevel, 100);
+    }
+
+    public static ItemLore generatePeekLoreForPokemon(BattlePeekTracker.SeenPokemon seenPokemon) {
+        List<Component> components = new ArrayList<>();
+
+        // Health percentage with color coding
+        int hp = seenPokemon.getHealthPercent();
+        ChatFormatting hpColor;
+        if (hp == 0) hpColor = ChatFormatting.DARK_RED;
+        else if (hp <= 25) hpColor = ChatFormatting.RED;
+        else if (hp <= 50) hpColor = ChatFormatting.YELLOW;
+        else hpColor = ChatFormatting.GREEN;
+        String hpText = hp == 0 ? "Fainted" : hp + "%";
+        components.add(Component.literal(ChatFormatting.GRAY + "HP: " + hpColor + hpText));
+
+        String statusDisplay = seenPokemon.getStatusDisplayName();
+        if (statusDisplay != null) {
+            components.add(Component.literal(ChatFormatting.GRAY + "Status: " + ChatFormatting.GOLD + statusDisplay));
+        }
+
+        components.add(Component.literal(ChatFormatting.GRAY + "Revealed Moves:"));
+        if (seenPokemon.getSeenMoves().isEmpty()) {
+            components.add(Component.literal(ChatFormatting.DARK_GRAY + "  No moves revealed yet"));
+        } else {
+            for (String moveName : seenPokemon.getSeenMoves()) {
+                components.add(Component.literal(ChatFormatting.WHITE + "  " + moveName));
+            }
+        }
+        return new ItemLore(components);
     }
 }

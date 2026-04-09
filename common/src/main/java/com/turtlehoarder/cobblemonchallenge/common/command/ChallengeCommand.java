@@ -1,6 +1,8 @@
 package com.turtlehoarder.cobblemonchallenge.common.command;
 
 import com.cobblemon.mod.common.Cobblemon;
+import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
+import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.battles.BattleRegistry;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.Command;
@@ -10,8 +12,10 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
+import com.turtlehoarder.cobblemonchallenge.common.battle.BattlePeekTracker;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeFormat;
 import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
+import com.turtlehoarder.cobblemonchallenge.common.gui.BattlePeekMenuProvider;
 import com.turtlehoarder.cobblemonchallenge.common.gui.LeadPokemonSelectionSession;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -26,6 +30,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -175,6 +180,9 @@ public class ChallengeCommand {
         registerChallengeFormatCommand(dispatcher, "challengedouble6v6", ChallengeFormat.STANDARD_DOUBLES_6V6);
 
         registerAcceptDenyCommands(dispatcher);
+
+        dispatcher.register(Commands.literal("challengepeek")
+                .executes(ChallengeCommand::peekOpponentTeam));
     }
 
     private static void registerAcceptDenyCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -374,5 +382,55 @@ public class ChallengeCommand {
         selectionWrapper.openPlayerMenus(); // Force both players to open their menus
     }
 
+    public static int peekOpponentTeam(CommandContext<CommandSourceStack> c) {
+        try {
+            ServerPlayer player = c.getSource().getPlayer();
+            if (player == null) {
+                c.getSource().sendFailure(Component.literal("This command can only be used by a player"));
+                return 0;
+            }
+
+            BattleRegistry br = Cobblemon.INSTANCE.getBattleRegistry();
+            PokemonBattle battle = br.getBattleByParticipatingPlayer(player);
+            if (battle == null) {
+                c.getSource().sendFailure(Component.literal("You are not currently in a battle"));
+                return 0;
+            }
+
+            if (!ChallengeUtil.isBattleChallenge(battle.getBattleId())) {
+                c.getSource().sendFailure(Component.literal("This command can only be used during a challenge battle"));
+                return 0;
+            }
+
+            // Find the opponent actor
+            BattleActor opponentActor = null;
+            for (BattleActor actor : battle.getActors()) {
+                boolean isPlayerActor = false;
+                for (UUID uuid : actor.getPlayerUUIDs()) {
+                    if (uuid.equals(player.getUUID())) {
+                        isPlayerActor = true;
+                        break;
+                    }
+                }
+                if (!isPlayerActor) {
+                    opponentActor = actor;
+                    break;
+                }
+            }
+
+            List<BattlePeekTracker.SeenPokemon> seenPokemon = BattlePeekTracker.getSeenPokemon(battle.getBattleId(), player.getUUID());
+            if (seenPokemon.isEmpty()) {
+                c.getSource().sendFailure(Component.literal("No opponent pokemon have been revealed yet"));
+                return 0;
+            }
+
+            player.openMenu(new BattlePeekMenuProvider(seenPokemon, opponentActor));
+            return Command.SINGLE_SUCCESS;
+        } catch (Exception e) {
+            c.getSource().sendFailure(Component.literal("An unexpected error has occurred: " + e.getMessage()));
+            e.printStackTrace();
+            return 0;
+        }
+    }
 
 }

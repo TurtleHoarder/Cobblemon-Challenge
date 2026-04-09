@@ -10,6 +10,7 @@ import com.cobblemon.mod.common.api.storage.*;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.net.messages.client.storage.party.SetPartyReferencePacket;
 import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
+import com.turtlehoarder.cobblemonchallenge.common.battle.BattlePeekTracker;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.common.gui.LeadPokemonSelectionSession;
@@ -74,6 +75,7 @@ public class ChallengeEventHandler {
                 PokemonBattle battle = challengeBattleIterator.next();
                 if (battle.getBattleId().equals(battleVictoryEvent.getBattle().getBattleId())) {
                     challengeBattleIterator.remove();
+                    BattlePeekTracker.cleanupBattle(battle.getBattleId());
                     CobblemonChallenge.LOGGER.debug(String.format("Removing tracked Challenge battle id: %s", battleVictoryEvent.getBattle().getBattleId()));
                 }
             }
@@ -101,6 +103,7 @@ public class ChallengeEventHandler {
             PokemonBattle battle = battleIterator.next();
             if (battle.getPlayers().contains(serverPlayer)) {
                 CobblemonChallenge.LOGGER.debug(String.format("Found hanging battle! (%s)", battle.getBattleId()));
+                BattlePeekTracker.cleanupBattle(battle.getBattleId());
                 battleIterator.remove(); // Remove hanging battle from list
             }
         }
