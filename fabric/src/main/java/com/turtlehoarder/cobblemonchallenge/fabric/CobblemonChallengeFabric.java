@@ -14,6 +14,10 @@ public class CobblemonChallengeFabric extends CobblemonChallengeCommonInterface 
 
     @Override
     public void onInitialize() {
+        // Before the config is read: the file has to be at the new path by then.
+        ConfigMigration.moveIntoModDirectory(getConfigDirectory(),
+                CobblemonChallenge.MODID + "-config.properties",
+                CobblemonChallenge.CONFIG_NAME + ".properties");
         ChallengeConfig.registerConfigs();
         CobblemonChallenge challenge = new CobblemonChallenge();
         challenge.initializeChallenge(this);
@@ -27,6 +31,16 @@ public class CobblemonChallengeFabric extends CobblemonChallengeCommonInterface 
     @Override
     public boolean getBooleanConfig(String configName) {
         return Boolean.parseBoolean(ChallengeConfig.CONFIG.get(configName));
+    }
+
+    @Override
+    public String getStringConfig(String configName) {
+        return ChallengeConfig.CONFIG.get(configName);
+    }
+
+    @Override
+    public java.nio.file.Path getConfigDirectory() {
+        return net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir();
     }
 
     @Override

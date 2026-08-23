@@ -29,7 +29,14 @@ public class CobblemonChallengeForge extends CobblemonChallengeCommonInterface {
     }
 
     public CobblemonChallengeForge(ModContainer container) {
-        container.registerConfig(ModConfig.Type.COMMON, commonSpec);
+        // NeoForge writes <modid>-common.toml by default; move any existing one
+        // into the mod's directory before registering the new path.
+        com.turtlehoarder.cobblemonchallenge.common.ConfigMigration.moveIntoModDirectory(
+                net.neoforged.fml.loading.FMLPaths.CONFIGDIR.get(),
+                CobblemonChallenge.MODID + "-common.toml",
+                CobblemonChallenge.CONFIG_DIRECTORY + "/config.toml");
+        container.registerConfig(ModConfig.Type.COMMON, commonSpec,
+                CobblemonChallenge.CONFIG_DIRECTORY + "/config.toml");
         NeoForge.EVENT_BUS.addListener(this::commands);
         container.getEventBus().addListener(this::serverInitialize);
     }
@@ -53,6 +60,16 @@ public class CobblemonChallengeForge extends CobblemonChallengeCommonInterface {
     @Override
     public boolean getBooleanConfig(String configName) {
         return config.getBooleanConfig(configName);
+    }
+
+    @Override
+    public String getStringConfig(String configName) {
+        return config.getStringConfig(configName);
+    }
+
+    @Override
+    public java.nio.file.Path getConfigDirectory() {
+        return net.neoforged.fml.loading.FMLPaths.CONFIGDIR.get();
     }
 
     @Override

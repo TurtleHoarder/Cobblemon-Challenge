@@ -1,5 +1,7 @@
 package com.turtlehoarder.cobblemonchallenge.common.event;
 
+import com.turtlehoarder.cobblemonchallenge.common.ChallengeLang;
+
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.CobblemonNetwork;
 import com.cobblemon.mod.common.api.Priority;
@@ -20,7 +22,6 @@ import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.event.events.common.TickEvent;
 import kotlin.Unit;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -59,14 +60,14 @@ public class ChallengeEventHandler {
                     for (BattleActor actor : battleVictoryEvent.getWinners()) {
                         actor.getPlayerUUIDs().forEach(winnerUUID -> {
                             if (player.getUUID().equals(winnerUUID)) {
-                                player.displayClientMessage(Component.literal(ChatFormatting.GREEN + "You have won the challenge!"), false);
+                                player.displayClientMessage(ChallengeLang.get("cobblemonchallenge.battle.won"), false);
                                 participantIterator.remove();
                             }
                         });
                     }
                 }
                 // Remaining participants have lost
-                participants.forEach(loser -> loser.displayClientMessage(Component.literal(ChatFormatting.RED + "You have lost the challenge"), false));
+                participants.forEach(loser -> loser.displayClientMessage(ChallengeLang.get("cobblemonchallenge.battle.lost"), false));
             }
             // Remove challenge battle from tracking
             Iterator<PokemonBattle> challengeBattleIterator = ChallengeBattleBuilder.challengeBattles.iterator();
@@ -116,10 +117,10 @@ public class ChallengeEventHandler {
                 ChallengeCommand.ChallengeRequest request = requestMap.getValue();
                 if (request.createdTime() + CobblemonChallenge.REQUEST_EXPIRATION_MILLIS < nowTime) {
                     if (ChallengeUtil.isPlayerOnline(request.challengedPlayer())) {
-                        request.challengedPlayer().displayClientMessage(Component.literal(ChatFormatting.RED + String.format("Challenge from %s has expired", request.challengerPlayer().getDisplayName().getString())), false);
+                        request.challengedPlayer().displayClientMessage(ChallengeLang.get("cobblemonchallenge.challenge.expired_from", request.challengerPlayer().getDisplayName().getString()), false);
                     }
                     if (ChallengeUtil.isPlayerOnline(request.challengerPlayer())) {
-                        request.challengerPlayer().displayClientMessage(Component.literal(ChatFormatting.RED + String.format("Challenge to %s has expired", request.challengedPlayer().getDisplayName().getString())), false);
+                        request.challengerPlayer().displayClientMessage(ChallengeLang.get("cobblemonchallenge.challenge.expired_to", request.challengedPlayer().getDisplayName().getString()), false);
                     }
                     requestIterator.remove();
                 }

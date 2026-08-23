@@ -10,12 +10,18 @@ public class CobblemonChallenge {
     public static final Logger LOGGER = LoggerFactory.getLogger("cobblemonchallenge");
     public static final String MODID = "cobblemonchallenge";
 
+    /** Everything the mod writes lives here, under the platform's config directory. */
+    public static final String CONFIG_DIRECTORY = MODID;
+    /** Passed to SimpleConfig, which appends ".properties" itself. */
+    public static final String CONFIG_NAME = CONFIG_DIRECTORY + "/config";
+
     public static Boolean CHALLENGE_DISTANCE_RESTRICTION;
     public static int MAX_CHALLENGE_DISTANCE;
     public static int DEFAULT_CHALLENGE_LEVEL;
     public static int DEFAULT_HANDICAP;
     public static int REQUEST_EXPIRATION_MILLIS;
     public static int CHALLENGE_COOLDOWN_MILLIS;
+    public static String LANGUAGE;
 
     public static final String CHALLENGE_DISTANCE_CONFIG_NAME = "challengeDistanceRestriction";
     public static final String MAX_CHALLENGE_DISTANCE_CONFIG_NAME = "maxChallengeDistance";
@@ -23,6 +29,7 @@ public class CobblemonChallenge {
     public static final String DEFAULT_HANDICAP_CONFIG_NAME = "defaultHandicap";
     public static final String CHALLENGE_EXPIRATION_TIME_CONFIG_NAME = "challengeExpirationTime";
     public static final String CHALLENGE_COOLDOWN_CONFIG_NAME = "challengeCooldownTime";
+    public static final String LANGUAGE_CONFIG_NAME = "language";
 
     private CobblemonChallengeCommonInterface implementation;
 
@@ -38,6 +45,9 @@ public class CobblemonChallenge {
         DEFAULT_HANDICAP = implementation.getIntConfig(DEFAULT_HANDICAP_CONFIG_NAME);
         REQUEST_EXPIRATION_MILLIS = implementation.getIntConfig(CHALLENGE_EXPIRATION_TIME_CONFIG_NAME);
         CHALLENGE_COOLDOWN_MILLIS = implementation.getIntConfig(CHALLENGE_COOLDOWN_CONFIG_NAME);
+        LANGUAGE = implementation.getStringConfig(LANGUAGE_CONFIG_NAME);
+        // Before commands and events: both send messages the moment they fire.
+        ChallengeLang.load(implementation.getConfigDirectory(), LANGUAGE);
         implementation.registerCommands();
         implementation.registerEvents();
     }
