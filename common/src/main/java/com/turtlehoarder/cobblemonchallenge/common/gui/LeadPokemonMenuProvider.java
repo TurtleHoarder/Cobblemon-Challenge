@@ -1,5 +1,7 @@
 package com.turtlehoarder.cobblemonchallenge.common.gui;
 
+import com.turtlehoarder.cobblemonchallenge.common.ChallengeLang;
+
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.CobblemonItems;
 import com.cobblemon.mod.common.api.storage.party.PartyStore;
@@ -9,7 +11,6 @@ import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeFormat;
 import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,9 +53,9 @@ public class LeadPokemonMenuProvider implements MenuProvider {
     @Override
     public @NotNull Component getDisplayName() {
         if (request.format().getTotalPokemonSelected() == 1)
-            return Component.literal("Select your Lead Pokemon");
+            return ChallengeLang.get("cobblemonchallenge.gui.select_lead");
         else
-            return Component.literal("Select %d Pokemon for %s".formatted(request.format().getTotalPokemonSelected(), request.format().getTitle()));
+            return ChallengeLang.get("cobblemonchallenge.gui.select_n", request.format().getTotalPokemonSelected(), request.format().getTitle());
     }
 
     @Nullable
@@ -79,7 +80,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
             BattlePokemon copy = BattlePokemon.Companion.safeCopyOf(pokemon);
             pokemon = ChallengeUtil.applyFormatTransformations(ChallengeFormat.STANDARD_6V6, copy, request.level()).getEffectedPokemon(); // Apply battle transformations to each pokemon
             ItemStack pokemonItem = PokemonItem.from(pokemon, 1);
-            pokemonItem.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.AQUA + String.format("%s (lvl%d)", pokemon.getDisplayName(false).getString(), request.level())));
+            pokemonItem.set(DataComponents.CUSTOM_NAME, ChallengeLang.get("cobblemonchallenge.gui.pokemon_name", pokemon.getDisplayName(false).getString(), request.level()));
             ItemLore pokemonLoreTag = ChallengeUtil.generateLoreTagForPokemon(pokemon);
 
             pokemonItem.set(DataComponents.LORE, pokemonLoreTag);
@@ -95,19 +96,19 @@ public class LeadPokemonMenuProvider implements MenuProvider {
             }
             if (selectionSession.teamPreviewOn()) {
                 ItemStack pokemonItem = PokemonItem.from(pokemon, 1);
-                pokemonItem.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.RED + String.format("%s's %s (lvl%d)", rival.getDisplayName().getString(), pokemon.getDisplayName(false).getString(), request.level())));
+                pokemonItem.set(DataComponents.CUSTOM_NAME, ChallengeLang.get("cobblemonchallenge.gui.rival_pokemon_name", rival.getDisplayName().getString(), pokemon.getDisplayName(false).getString(), request.level()));
                 leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
             } else {
                 ItemStack pokemonItem = new ItemStack(CobblemonItems.POKE_BALL.asItem());
                 pokemonItem.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
-                pokemonItem.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.RED + String.format("%s's Pokemon", rival.getDisplayName().getString())));
+                pokemonItem.set(DataComponents.CUSTOM_NAME, ChallengeLang.get("cobblemonchallenge.gui.rival_pokemon", rival.getDisplayName().getString()));
                 leadPokemonMenu.setItem(itemSlot, leadPokemonMenu.getStateId(), pokemonItem);
             }
         }
     }
 
     private void setGlassDisplayName(ItemStack s, int secondsLeft) {
-        s.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.AQUA + String.format("Seconds left to choose: %d", secondsLeft)));
+        s.set(DataComponents.CUSTOM_NAME, ChallengeLang.get("cobblemonchallenge.gui.seconds_left", secondsLeft));
         ItemLore glassLoreTag = generateLoreTagForGlass(s);
         s.set(DataComponents.LORE, glassLoreTag);
     }
@@ -116,15 +117,15 @@ public class LeadPokemonMenuProvider implements MenuProvider {
         List<Component> components = new ArrayList<>();
         Component additionalInformation;
         if (menuState == MenuState.WAITING_FOR_RIVAL) {
-            additionalInformation = Component.literal(ChatFormatting.WHITE + String.format("Waiting on %s...", rival.getDisplayName().getString()));
+            additionalInformation = ChallengeLang.get("cobblemonchallenge.gui.waiting_rival", rival.getDisplayName().getString());
         } else if (menuState == MenuState.WAITING_FOR_PLAYER) {
             if (request.format().getTotalPokemonSelected() == 1) {
-                additionalInformation = Component.literal(ChatFormatting.WHITE + "Waiting on you to select Lead...");
+                additionalInformation = ChallengeLang.get("cobblemonchallenge.gui.waiting_you_lead");
             } else {
-                additionalInformation = Component.literal(ChatFormatting.WHITE + "Waiting on you to select %d pokemon...".formatted(request.format().getTotalPokemonSelected()));
+                additionalInformation = ChallengeLang.get("cobblemonchallenge.gui.waiting_you_n", request.format().getTotalPokemonSelected());
             }
         } else {
-            additionalInformation = Component.literal(ChatFormatting.WHITE + "Waiting on both players to select leads...");
+            additionalInformation = ChallengeLang.get("cobblemonchallenge.gui.waiting_both");
         }
         components.add(additionalInformation);
         return new ItemLore(components);
@@ -165,7 +166,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                 setGlassDisplayName(glassFiller, timeLeft);
                 leadPokemonMenu.setItemSlotMulti(glassFiller, 12, 30, 20);
                 ItemStack pokemonFiller = PokemonItem.from(selectedPokemon, 1);
-                pokemonFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as your lead", selectedPokemon.getDisplayName(false).getString())));
+                pokemonFiller.set(DataComponents.CUSTOM_NAME, ChallengeLang.get("cobblemonchallenge.gui.you_selected_lead", selectedPokemon.getDisplayName(false).getString()));
                 leadPokemonMenu.setItem(21, leadPokemonMenu.getStateId(), pokemonFiller);
             }
             if (rivalSelectedPokemon == selectionSession.getMaxPokemonSelection()) {
@@ -174,7 +175,7 @@ public class LeadPokemonMenuProvider implements MenuProvider {
                 leadPokemonMenu.setItemSlotMulti(glassFiller, 23, 13, 31);
                 ItemStack pokeballFiller = new ItemStack(CobblemonItems.POKE_BALL.asItem());
                 pokeballFiller.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
-                pokeballFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.RED + String.format("%s has selected their lead", rival.getDisplayName().getString())));
+                pokeballFiller.set(DataComponents.CUSTOM_NAME, ChallengeLang.get("cobblemonchallenge.gui.rival_selected_lead", rival.getDisplayName().getString()));
                 leadPokemonMenu.setItem(22, leadPokemonMenu.getStateId(), pokeballFiller);
             }
         } else { // For other formats, refer to the maps
@@ -183,20 +184,20 @@ public class LeadPokemonMenuProvider implements MenuProvider {
             for (int rivalSelectedNumber = 0; rivalSelectedNumber < rivalSelectedPokemon; rivalSelectedNumber++) {
                 ItemStack pokeballFiller = new ItemStack(CobblemonItems.POKE_BALL.asItem());
                 pokeballFiller.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
-                pokeballFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.RED + String.format("%s has selected Pokemon #" + (rivalSelectedNumber + 1), rival.getDisplayName().getString())));
+                pokeballFiller.set(DataComponents.CUSTOM_NAME, ChallengeLang.get("cobblemonchallenge.gui.rival_selected_n", rival.getDisplayName().getString(), rivalSelectedNumber + 1));
                 leadPokemonMenu.setItem(rivalSlotMap.get(rivalSelectedNumber + 1), leadPokemonMenu.getStateId(), pokeballFiller);
             }
             for (int selectedNumber = 0; selectedNumber < selectedSlots.size(); selectedNumber++) {
                 Pokemon selectedPokemon = p1Party.get(selectedSlots.get(selectedNumber));
                 ItemStack pokemonFiller = PokemonItem.from(selectedPokemon, 1);
                 // Small notification for letting players know they can deselect
-                pokemonFiller.set(DataComponents.CUSTOM_NAME, Component.literal(ChatFormatting.GREEN + String.format("You've selected %s as Pokemon #" + (selectedNumber + 1), selectedPokemon.getDisplayName(false).getString())));
+                pokemonFiller.set(DataComponents.CUSTOM_NAME, ChallengeLang.get("cobblemonchallenge.gui.you_selected_n", selectedPokemon.getDisplayName(false).getString(), selectedNumber + 1));
                 List<Component> components = new ArrayList<>();
                 if (selectedNumber == 0 && request.format().getBattleType().getSlotsPerActor() == 1) {
-                    components.add(Component.literal(String.format(ChatFormatting.GOLD  + "This is your lead")));
+                    components.add(ChallengeLang.get("cobblemonchallenge.gui.this_is_lead"));
                 }
                 if (selectedSlots.size() < request.format().getTotalPokemonSelected()) {
-                    components.add(Component.literal(String.format(ChatFormatting.YELLOW  + "Click to unselect pokemmon")));
+                    components.add(ChallengeLang.get("cobblemonchallenge.gui.click_unselect"));
                 }
                 pokemonFiller.set(DataComponents.LORE, new ItemLore(components));
                 leadPokemonMenu.setItem(allySlotMap.get(selectedNumber + 1), leadPokemonMenu.getStateId(), pokemonFiller);

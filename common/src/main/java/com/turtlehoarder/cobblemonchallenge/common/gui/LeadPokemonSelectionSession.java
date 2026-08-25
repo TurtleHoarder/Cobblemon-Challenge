@@ -1,10 +1,11 @@
 package com.turtlehoarder.cobblemonchallenge.common.gui;
 
+import com.turtlehoarder.cobblemonchallenge.common.ChallengeLang;
+
 import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
 import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.common.battle.*;
 import com.turtlehoarder.cobblemonchallenge.common.util.ChallengeUtil;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -68,8 +69,8 @@ public class LeadPokemonSelectionSession {
         try {
             challengeBuilder.lvlxpvp(originRequest.challengerPlayer(), originRequest.challengedPlayer(),originRequest.level(), challengerMenuProvider.selectedSlots, challengedMenuProvider.selectedSlots, originRequest.format());
         } catch (ChallengeBuilderException e) {
-            originRequest.challengedPlayer().displayClientMessage(Component.literal(ChatFormatting.RED + "There was an error initializing the challenge"), false);
-            originRequest.challengerPlayer().displayClientMessage(Component.literal(ChatFormatting.RED + "There was an error initializing the challenge"), false);
+            originRequest.challengedPlayer().displayClientMessage(ChallengeLang.get("cobblemonchallenge.error.init_failed"), false);
+            originRequest.challengerPlayer().displayClientMessage(ChallengeLang.get("cobblemonchallenge.error.init_failed"), false);
         }
     }
 
@@ -96,10 +97,10 @@ public class LeadPokemonSelectionSession {
     public void timeoutRequest() {
         this.timedOut = true;
         if (ChallengeUtil.isPlayerOnline(originRequest.challengerPlayer())) {
-            originRequest.challengerPlayer().sendSystemMessage(Component.literal(ChatFormatting.RED + "Challenge timed out: Selecting lead took too long"));
+            originRequest.challengerPlayer().sendSystemMessage(ChallengeLang.get("cobblemonchallenge.challenge.lead_timeout"));
         }
         if (ChallengeUtil.isPlayerOnline(originRequest.challengedPlayer())) {
-            originRequest.challengedPlayer().sendSystemMessage(Component.literal(ChatFormatting.RED + "Challenge timed out: Selecting lead took too long"));
+            originRequest.challengedPlayer().sendSystemMessage(ChallengeLang.get("cobblemonchallenge.challenge.lead_timeout"));
         }
         challengedMenuProvider.forceCloseMenu();
         challengerMenuProvider.forceCloseMenu();
@@ -109,8 +110,8 @@ public class LeadPokemonSelectionSession {
         if (!timedOut && !isBattleReady() && !closedOut) { // Don't send the message if the menus were forced close by timeout
             closedOut = true;
             ServerPlayer otherPlayer = getOtherPlayer(player);
-            player.sendSystemMessage(Component.literal(ChatFormatting.RED + String.format(String.format("You have cancelled the challenge to %s", otherPlayer.getDisplayName().getString()))));
-            otherPlayer.sendSystemMessage(Component.literal(ChatFormatting.RED + String.format("%s has cancelled the request", player.getDisplayName().getString())));
+            player.sendSystemMessage(ChallengeLang.get("cobblemonchallenge.challenge.cancelled_by_you", otherPlayer.getDisplayName().getString()));
+            otherPlayer.sendSystemMessage(ChallengeLang.get("cobblemonchallenge.challenge.cancelled_by_rival", player.getDisplayName().getString()));
             challengerMenuProvider.forceCloseMenu();
             challengedMenuProvider.forceCloseMenu();
             SESSIONS_TO_CANCEL.add(this);

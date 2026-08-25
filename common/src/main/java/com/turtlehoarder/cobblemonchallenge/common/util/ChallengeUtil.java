@@ -1,5 +1,7 @@
 package com.turtlehoarder.cobblemonchallenge.common.util;
 
+import com.turtlehoarder.cobblemonchallenge.common.ChallengeLang;
+
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.api.types.ElementalType;
 import com.cobblemon.mod.common.battles.ActiveBattlePokemon;
@@ -11,7 +13,6 @@ import com.turtlehoarder.cobblemonchallenge.common.CobblemonChallenge;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeBattleBuilder;
 import com.turtlehoarder.cobblemonchallenge.common.battle.ChallengeFormat;
 import com.turtlehoarder.cobblemonchallenge.common.command.ChallengeCommand;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.ListTag;
@@ -105,20 +106,19 @@ public class ChallengeUtil {
 
     public static ItemLore generateLoreTagForPokemon(Pokemon pokemon) {
         List<Component> components = new ArrayList<>();
-        Component abilityComponent = Component.literal(String.format(ChatFormatting.GRAY  + "Ability: %s", ChatFormatting.YELLOW + LocalizationUtilsKt.lang(String.format("ability.%s", pokemon.getAbility().getName())).getString()));
+        Component abilityComponent = ChallengeLang.get("cobblemonchallenge.lore.ability", LocalizationUtilsKt.lang(String.format("ability.%s", pokemon.getAbility().getName())).getString());
         String natureKey = pokemon.getNature().getName().toLanguageKey();
-        Component natureComponent = Component.literal(String.format(ChatFormatting.GRAY + "Nature: %s", ChatFormatting.YELLOW + LocalizationUtilsKt.lang(String.format("nature.%s",natureKey.substring(natureKey.lastIndexOf('.') + 1))).getString()));
-        String statSeparator = ChatFormatting.GRAY + " / ";
-        Component statsPartOne = Component.literal(String.format(ChatFormatting.RED + "HP: %d" + statSeparator + ChatFormatting.GOLD + "Atk: %d" + statSeparator + ChatFormatting.YELLOW + "Def: %d", pokemon.getHp(), pokemon.getAttack(), pokemon.getDefence()));
-        Component statsPartTwo = Component.literal(String.format(ChatFormatting.AQUA + "SpA: %d" + statSeparator + ChatFormatting.GREEN + "SpD: %d" + statSeparator + ChatFormatting.LIGHT_PURPLE + "Spe: %d", pokemon.getSpecialAttack(), pokemon.getSpecialDefence(), pokemon.getSpeed()));
-        Component moveSeperator = Component.literal( "Moves:");
+        Component natureComponent = ChallengeLang.get("cobblemonchallenge.lore.nature", LocalizationUtilsKt.lang(String.format("nature.%s",natureKey.substring(natureKey.lastIndexOf('.') + 1))).getString());
+        Component statsPartOne = ChallengeLang.get("cobblemonchallenge.lore.stats_one", pokemon.getHp(), pokemon.getAttack(), pokemon.getDefence());
+        Component statsPartTwo = ChallengeLang.get("cobblemonchallenge.lore.stats_two", pokemon.getSpecialAttack(), pokemon.getSpecialDefence(), pokemon.getSpeed());
+        Component moveSeperator = ChallengeLang.get("cobblemonchallenge.lore.moves");
         components.add(abilityComponent);
         components.add(natureComponent);
         components.add(statsPartOne);
         components.add(statsPartTwo);
         components.add(moveSeperator);
         pokemon.getMoveSet().getMoves().forEach(move -> {
-            Component moveComponent = Component.literal(ChatFormatting.WHITE + String.format("%s - %d/%d", move.getDisplayName().getString() + ChatFormatting.GRAY, move.getMaxPp(), move.getMaxPp()));
+            Component moveComponent = ChallengeLang.get("cobblemonchallenge.lore.move", move.getDisplayName().getString(), move.getMaxPp(), move.getMaxPp());
             components.add(moveComponent);
         });
         return new ItemLore(components);
