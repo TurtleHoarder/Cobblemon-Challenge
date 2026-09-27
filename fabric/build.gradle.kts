@@ -34,6 +34,13 @@ dependencies {
 
     modImplementation("com.cobblemon:fabric:${property("cobblemon_version")}") { isTransitive = false }
     shadowCommon(project(":common", configuration = "transformProductionFabric"))
+
+    // Explicit libraries to resolve some runtime issues
+    runtimeOnly("org.graalvm.js:js:22.3.0")
+    runtimeOnly("org.graalvm.sdk:graal-sdk:22.3.0")
+    runtimeOnly("org.graalvm.regex:regex:22.3.0")
+    runtimeOnly("org.graalvm.truffle:truffle-api:22.3.0")
+    minecraftServerLibraries("com.ibm.icu:icu4j:71.1")
 }
 
 tasks.processResources {
